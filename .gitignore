@@ -1,0 +1,6 @@
+# IDE settings
+.vscode
+
+# Python related
+__pycache__
+.venv
