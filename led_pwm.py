@@ -31,15 +31,22 @@ class LEDController(IActuator):
         Returns:
             bool: True if the command is compatible, false otherwise.
         """
-
-        return command.target_type == self.type
+        if command.target_type == self.type:
+            if type(command.value) is str and (command.value.lower() =="on" or command.value.lower() == "off") and self.type == ACommand.Type.LIGHT_ON_OFF:
+                return True
+            elif type(command.value) is str and command.value.isnumeric() and self.type == ACommand.Type.LIGHT_PULSE:
+                return True
+            else:
+                return False
+            
+        return False
     
     def control_actuator(self, value: str) -> bool:
         """
         Sets the LED based on the value. The value can be "on", "off", or a pulse duration.
 
         Args:
-            value (str): The command value as a string.
+            value (str): The command value as a string.  
 
         Returns:
             bool: True if the command was executed successfully, False otherwise.

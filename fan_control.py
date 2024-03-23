@@ -18,7 +18,8 @@ class FanController():
         - type: The type of command this actuator responds to (should be FAN).
         - initial_state: The initial state of the fan ("on" or "off").
         """
-        self._current_state = GPIO.LOW if initial_state == "off" else GPIO.HIGH
+        self._current_state = GPIO.LOW if initial_state.lower() == "off" else GPIO.HIGH
+        print(self._current_state)
         self.type = type
         self.gpio_pin = gpio
 
@@ -26,6 +27,8 @@ class FanController():
         GPIO.setmode(GPIO.BCM)
         # Set the GPIO pin as output
         GPIO.setup(self.gpio_pin, GPIO.OUT)
+        GPIO.output(self.gpio_pin, self._current_state)
+
 
     def validate_command(self, command: ACommand) -> bool:
         """Validates that a command can be used with the fan actuator.
@@ -37,7 +40,7 @@ class FanController():
             bool: True if the command is compatible, false otherwise.
         """
 
-        return command.target_type == self.type
+        return command.target_type == self.type and type(command.value) is str and (command.value.lower() == "on" or command.value.lower() == "off")
 
     def control_actuator(self, value: str) -> bool:
         """
