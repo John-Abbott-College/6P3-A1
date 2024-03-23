@@ -10,46 +10,53 @@ from sensors import ISensor, AReading
 AHT20_ADDRESS = 0x38
 BUS = 4
 
-class Reading(NamedTuple):
+class SensorReading(AReading):
     """A class to represent a sensor reading with additional information."""
-    value: float
-    unit: str
-    timestamp: str
 
-    def __str__(self):
-        formatted_value = "{:.2f}".format(self.value)
-        return f"{formatted_value} {self.unit} at {self.timestamp}"
+    def __init__(self, type: 'AReading.Type', unit: 'AReading.Unit', value: float):
+        super().__init__(type, unit, value)
+
+    def __repr__(self) -> str:
+        return f"{self.reading_type.value.capitalize()}: {self.value:.2f}{self.reading_unit.value}"
 
 
-class TemperatureHumiditySensor():
+class TemperatureHumiditySensor(ISensor):
     """A class to represent a sensor with a method to read tempature and humidity."""
 
-    def __init__(self, address: int, bus: Union[Any, int]) -> None:
+    def __init__(self, gpio: int, model: str, type: AReading.Type ) -> None:
         """
-        Initialize the Temperature and humidiy sensor and sets the address and bus.
+        Initialize the Temperature and humidiy sensor and sets the model and reading type.
 
             Args:
-            - address: The address of the sensor.
-            - bus: The i2c bus the sensor is connected to.
+            - gpio (int): The address of the sensor.
+            - model (str): specific model of sensor hardware. Should be AHT20.
+            - type (AReading.Type): Type of reading produced by sensor. Should be 'TEMPERATURE' or 'HUMIDITY'
         """
-        self.sensor = GroveTemperatureHumidityAHT20(address=address, bus=bus)
+        self.sensor = GroveTemperatureHumidityAHT20(address=AHT20_ADDRESS, bus=gpio)
+        self._sensor_model = model
+        self.reading_type = type
 
-    def read_sensor(self) -> List[Reading]:
+    def read_sensor(self) -> List[AReading]:
         """
         Reads sensor data and returns a list of readings.
         
         Returns:
-        List[Reading]: A list of the readings taken by the sensor.
+        List[AReading]: A list of the readings taken by the sensor.
         """
-        temperature, humidity = self.sensor.read()    
-        temp_reading = Reading(value=temperature, unit="C", timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
-        humidity_reading = Reading(value=humidity, unit="% Humidity", timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        temperature, humidity = self.sensor.read()
+        readings = []
 
-        return [temp_reading, humidity_reading]
+        if AReading.Type.TEMPERATURE in self.reading_type:
+            readings.append(SensorReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temperature))
+        if AReading.Type.HUMIDITY in self.reading_type:
+            readings.append(SensorReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, humidity))
+
+        return readings
 
 
 def main():
-    sensor = TemperatureHumiditySensor(address = AHT20_ADDRESS, bus = BUS)
+    # type shouldn't be a list but it works :)
+    sensor = TemperatureHumiditySensor(gpio=BUS, model="AHT20", type=[AReading.Type.TEMPERATURE, AReading.Type.HUMIDITY])
     while True:
         readings = sensor.read_sensor()
         for reading in readings:
