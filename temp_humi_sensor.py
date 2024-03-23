@@ -5,6 +5,7 @@ from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
 import time
 from typing import List, NamedTuple, Literal, Union, Any
 from datetime import datetime
+from sensors import ISensor, AReading
 
 AHT20_ADDRESS = 0x38
 BUS = 4
