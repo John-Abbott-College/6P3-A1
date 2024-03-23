@@ -72,17 +72,33 @@ if __name__ == "__main__":
 
     while True:
         print(device_manager.read_sensors())
-
-        fake_command = ACommand(
+        
+        fan_on_command = ACommand(
+            ACommand.Type.FAN, "on")
+        
+        light_pulse_command = ACommand(
             ACommand.Type.LIGHT_PULSE, "2")
 
-        device_manager.control_actuators([fake_command])
+        device_manager.control_actuators([fan_on_command,light_pulse_command])
 
         sleep(TEST_SLEEP_TIME)
-        
-        fake_command = ACommand(
+        device_manager._actuators[1].type = ACommand.Type.LIGHT_ON_OFF
+        fan_off_command = ACommand(
             ACommand.Type.FAN, "off")
-        device_manager.control_actuators([fake_command])
+        
+        light_on_command = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "on")
+        
+        device_manager.control_actuators([fan_off_command, light_on_command])
 
         sleep(TEST_SLEEP_TIME)
+
+        light_off_command = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "off")
+        
+        device_manager.control_actuators([light_off_command])
+
+        sleep(TEST_SLEEP_TIME)
+        device_manager._actuators[1].type = ACommand.Type.LIGHT_PULSE
+
 
