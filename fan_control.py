@@ -2,13 +2,12 @@
 
 import RPi.GPIO as GPIO
 import time
-from typing import Literal, Union
 from actuators import IActuator, ACommand
 
 FAN_GPIO_PIN = 22
 
 
-class FanController():
+class FanController(IActuator):
     def __init__(self, gpio: int, type: ACommand.Type, initial_state: str = "off") -> None:
         """
         Initialize the Fan controller and sets the GPIO mode.

@@ -2,7 +2,6 @@
 
 from gpiozero import PWMLED
 from time import sleep
-from typing import Union
 from actuators import IActuator, ACommand
 
 LED_GPIO_PIN = 12

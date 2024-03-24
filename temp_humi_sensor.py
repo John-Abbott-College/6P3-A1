@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
-from grove.i2c import Bus
 from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
 import time
-from typing import List, NamedTuple, Literal, Union, Any
-from datetime import datetime
+from typing import List
 from sensors import ISensor, AReading
 
 AHT20_ADDRESS = 0x38
