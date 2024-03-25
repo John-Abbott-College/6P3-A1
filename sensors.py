@@ -50,7 +50,7 @@ class ISensor(ABC):
     reading_type: AReading.Type
 
     @abstractmethod
-    def __init__(self, gpio: int,  model: str, type: AReading.Type):
+    def __init__(self, gpio: int, model: str, type: AReading.Type):
         """Constructor for Sensor  class. May be called from childclass.
 
         :param str model: specific model of sensor hardware. Ex. AHT20 or LTR-303ALS-01
@@ -64,3 +64,35 @@ class ISensor(ABC):
         :return list[AReading]: List of readinds measured by the sensor. Most sensors return a list with a single item.
         """
         pass
+
+
+class MockSensor(ISensor):
+    """A class to represent a mock sensor that implements ISensor.
+    """
+
+    def __init__(self, gpio: int, model: str, type: AReading.Type) -> None:
+        """Initialize the mock sensor and sets the properties required by the interface
+
+        Args:
+            gpio (int): The mock address of the sensor.
+            model (str): The model of the mock sensor.
+            type (AReading.Type): Type of reading 'produced' by the mock sensor.
+        """
+        self._sensor_model = model
+        self.reading_type = type
+
+    def read_sensor(self) -> list[AReading]:
+        """Returns an AReading list with mock sensor data.
+
+        Returns:
+            list[AReading]: A list of the fake readings.
+        """
+        print('Mock sensor reading...')
+        return [
+            AReading(
+                AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, -200.0), 
+            AReading(
+                AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, 101.0),
+            AReading(
+                AReading.Type.LUMINOSITY, AReading.Unit.UNITLESS, 3.846e26)
+            ]

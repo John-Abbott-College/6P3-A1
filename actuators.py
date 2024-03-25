@@ -36,7 +36,8 @@ class IActuator(ABC):
     type: ACommand.Type
 
     @abstractmethod
-    def __init__(self, gpio: int, type: ACommand.Type, initial_state: str) -> None:
+    def __init__(self, gpio: int, type: ACommand.Type,
+                 initial_state: str) -> None:
         """Constructor for Actuator class. Must define interface's class properties
 
         :param ACommand.Type type: Type of command the actuator can respond to.
@@ -61,4 +62,48 @@ class IActuator(ABC):
         :param str value: Value used to set the new state of the actuator. Value is parsed inside concrete classes.
         :return bool: True if the state of the actuator changed, false otherwise.
         """
+        pass
+
+
+class MockActuator(IActuator):
+    """A class that represents a mock actuator that implements the IActuator interface.
+    """
+
+    def __init__(self, gpio: int, type: ACommand.Type,
+                 initial_state: str) -> None:
+        """Initialize the mock actuator. Set the parameters required by the interface.
+
+        Args:
+            gpio (int): The GPIO pin of the mock actuator.
+            type (ACommand.Type): The type of command the mock actuator responds to.
+            initial_state (str): The initial state of the mock actuator.
+        """
+        self._current_state = initial_state
+        self.type = type
+        return
+
+    def validate_command(self, command: ACommand) -> bool:
+        """Simulates validating a command
+
+        Args:
+            command (ACommand): The command to validate
+
+        Returns:
+            bool: Always returns True.
+        """
+        return True
+
+    def control_actuator(self, value: str) -> bool:
+        """Simulates controlling the mock actuator. Prints the value parameter.
+
+        Args:
+            value (str): The value to control the mock actuator.
+
+        Returns:
+            bool: Always returns True.
+        """
+        print(f"Mock actuator control: {value}")
+        return True
+
+    def clean_up(self):
         pass

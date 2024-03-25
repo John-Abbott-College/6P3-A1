@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
 
-from sensors import ISensor, AReading
+from sensors import ISensor, AReading, MockSensor
 from time import sleep
-from actuators import IActuator, ACommand
+from actuators import IActuator, ACommand, MockActuator
 from fan_control import FanController, FAN_GPIO_PIN
 from led_pwm import LEDController, LED_GPIO_PIN
 from temp_humi_sensor import TemperatureHumiditySensor, BUS
+from dotenv import load_dotenv
+import os
+
+# Load environment variables from .env
+load_dotenv()
 
 
 class DeviceController:
@@ -19,30 +24,53 @@ class DeviceController:
 
         :return List[ISensor]: List of initialized sensors.
         """
-
-        return [
-            TemperatureHumiditySensor(
-                gpio=BUS, model="AHT20", type=AReading.Type.TEMPERATURE),
-            TemperatureHumiditySensor(
-                gpio=BUS, model="AHT20", type=AReading.Type.HUMIDITY)
-        ]
+        mode = os.getenv('ENVIRONMENT', 'dev')
+        if mode in 'dev':
+            # Mock sensors for development
+            return [
+                MockSensor(
+                    gpio=0,
+                    model="mock",
+                    type=AReading.Type.TEMPERATURE),
+                MockSensor(
+                    gpio=1,
+                    model="mock",
+                    type=AReading.Type.HUMIDITY)]
+        else:
+            return [
+                TemperatureHumiditySensor(
+                    gpio=BUS, model="AHT20", type=AReading.Type.TEMPERATURE),
+                TemperatureHumiditySensor(
+                    gpio=BUS, model="AHT20", type=AReading.Type.HUMIDITY)
+            ]
 
     def _initialize_actuators(self) -> list[IActuator]:
         """Initializes all actuators and returns them as a list. Intended to be used in class constructor
 
         :return list[IActuator]: List of initialized actuators.
         """
-
-        return [
-            FanController(
-                gpio=FAN_GPIO_PIN,
-                type=ACommand.Type.FAN,
-                initial_state="off"),
-            LEDController(
-                gpio=LED_GPIO_PIN,
-                type=ACommand.Type.LIGHT_PULSE,
-                initial_state="off"),
-        ]
+        mode = os.getenv('ENVIRONMENT', 'dev')
+        if mode == 'dev':
+            # Mock actuators for development
+            return [
+                MockActuator(
+                    gpio=0, type=ACommand.Type.FAN, initial_state="off"),
+                MockActuator(
+                    gpio=1, type=ACommand.Type.LIGHT_ON_OFF, initial_state="off"),
+                MockActuator(
+                    gpio=2, type=ACommand.Type.LIGHT_PULSE, initial_state="off")
+            ]
+        else:
+            return [
+                FanController(
+                    gpio=FAN_GPIO_PIN,
+                    type=ACommand.Type.FAN,
+                    initial_state="off"),
+                LEDController(
+                    gpio=LED_GPIO_PIN,
+                    type=ACommand.Type.LIGHT_PULSE,
+                    initial_state="off"),
+            ]
 
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors.
