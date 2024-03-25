@@ -1,6 +1,11 @@
+#!/usr/bin/env python3
+
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+from fan_control import FanController, FAN_GPIO_PIN
+from led_pwm import LEDController, LED_GPIO_PIN
+from temp_humi_sensor import TemperatureHumiditySensor, BUS
 
 
 class DeviceController:
@@ -16,7 +21,10 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TemperatureHumiditySensor(
+                gpio=BUS, model="AHT20", type=AReading.Type.TEMPERATURE),
+            TemperatureHumiditySensor(
+                gpio=BUS, model="AHT20", type=AReading.Type.HUMIDITY)
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -26,15 +34,23 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            FanController(
+                gpio=FAN_GPIO_PIN,
+                type=ACommand.Type.FAN,
+                initial_state="off"),
+            LEDController(
+                gpio=LED_GPIO_PIN,
+                type=ACommand.Type.LIGHT_PULSE,
+                initial_state="off"),
         ]
 
     def read_sensors(self) -> list[AReading]:
-        """Reads data from all initialized sensors. 
+        """Reads data from all initialized sensors.
 
         :return list[AReading]: a list containing all readings collected from sensors.
         """
-        readings: list[AReading] = []
+        readings: list[AReading] = [sensor.read_sensor()
+                                    for sensor in self._sensors]
 
         return readings
 
@@ -43,6 +59,20 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.type == command.target_type:
+                    if actuator.validate_command(command=command):
+                        actuator.control_actuator(command.value)
+                        print(
+                            f"Executed command on {actuator.type}: {command.value}")
+                    else:
+                        print(
+                            f"Invalid command for actuator type {actuator.type}")
+                    break
+            else:
+                print(
+                    f"No actuator found for command type {command.target_type}")
 
 
 if __name__ == "__main__":
@@ -56,9 +86,30 @@ if __name__ == "__main__":
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+        fan_on_command = ACommand(
+            ACommand.Type.FAN, "on")
 
-        device_manager.control_actuators([fake_command])
+        light_pulse_command = ACommand(
+            ACommand.Type.LIGHT_PULSE, "2")
+
+        device_manager.control_actuators([fan_on_command, light_pulse_command])
 
         sleep(TEST_SLEEP_TIME)
+        device_manager._actuators[1].type = ACommand.Type.LIGHT_ON_OFF
+        fan_off_command = ACommand(
+            ACommand.Type.FAN, "off")
+
+        light_on_command = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "on")
+
+        device_manager.control_actuators([fan_off_command, light_on_command])
+
+        sleep(TEST_SLEEP_TIME)
+
+        light_off_command = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "off")
+
+        device_manager.control_actuators([light_off_command])
+
+        sleep(TEST_SLEEP_TIME)
+        device_manager._actuators[1].type = ACommand.Type.LIGHT_PULSE
