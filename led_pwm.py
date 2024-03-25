@@ -4,7 +4,7 @@ from signal import pause
 from actuators import IActuator, ACommand
 
 class LEDActuator(IActuator):
-    def __init__(self, myType: ACommand.Type, gpio:int) -> None:
+    def __init__(self, gpio:int, myType: ACommand.Type, initial_state: str = "0") -> None:
         self.led = PWMLED(gpio)
         self.type = myType
         self.duration = 0
@@ -28,12 +28,11 @@ class LEDActuator(IActuator):
         return previous_duration != self.duration
 
 
-def main():
-    led_onoff = LEDActuator(gpio=12, myType = ACommand.Type.LIGHT_ON_OFF)
+def main(): 
     led_pulse = LEDActuator(gpio=12, myType = ACommand.Type.LIGHT_PULSE)
     duration = 2
     print(f"LED pulsing twice for {duration} seconds...")
-    led.control_actuator(duration)
+    led_pulse.control_actuator(duration)
     print(f"Finished. Press CTRL-C to exit.")
     pause()
 
