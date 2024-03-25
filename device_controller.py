@@ -26,7 +26,7 @@ class DeviceController:
         """
 
         return [
-            
+            # Instantiate each actuator inside this list, separate items by comma.
         ]
 
     def read_sensors(self) -> list[AReading]:
