@@ -1,14 +1,18 @@
 #!/usr/bin/env python3
 
 from dash import Dash, html, callback_context
-from dash.dependencies import Input, Output, MATCH, State
+from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from device_controller import DeviceController
 from actuators import ACommand
 
 device_manager = DeviceController()
 
-app = Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP], suppress_callback_exceptions=True)
+app = Dash(
+    __name__,
+    external_stylesheets=[
+        dbc.themes.BOOTSTRAP],
+    suppress_callback_exceptions=True)
 
 app.layout = html.Div(children=[
     html.H1(children='Device Controller'),
@@ -23,6 +27,8 @@ app.layout = html.Div(children=[
 ])
 
 # Callback for all control buttons
+
+
 @app.callback(
     Output('output-placeholder', 'children'),
     [Input('fan-on-btn', 'n_clicks'),
@@ -31,7 +37,11 @@ app.layout = html.Div(children=[
      Input('led-off-btn', 'n_clicks')],
     prevent_initial_call=True
 )
-def control_devices(fan_on_clicks, fan_off_clicks, led_on_clicks, led_off_clicks):
+def control_devices(
+        fan_on_clicks,
+        fan_off_clicks,
+        led_on_clicks,
+        led_off_clicks):
     ctx = callback_context
 
     if not ctx.triggered:
@@ -57,6 +67,7 @@ def control_devices(fan_on_clicks, fan_off_clicks, led_on_clicks, led_off_clicks
         return "LED turned off."
 
     return "Unknown action"
+
 
 if __name__ == '__main__':
     app.run_server(debug=True)
