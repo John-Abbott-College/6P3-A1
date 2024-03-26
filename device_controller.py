@@ -68,7 +68,7 @@ class DeviceController:
                     initial_state="off"),
                 LEDController(
                     gpio=LED_GPIO_PIN,
-                    type=ACommand.Type.LIGHT_ON_OFF,
+                    type=ACommand.Type.LIGHT_PULSE,
                     initial_state="off"),
             ]
 
