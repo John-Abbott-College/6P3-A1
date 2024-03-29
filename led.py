@@ -28,5 +28,5 @@ class PWM_LED(IActuator):
 
 
 # if __name__ == "__main__":
-#     pwm = PWM_LED(12, ACommand(ACommand.Type.LIGHT_PULSE, 5))
+#     pwm = PWM_LED(12, ACommand(ACommand.Type.LIGHT_PULSE, "5"))
 #     pwm.control_actuator("h")
