@@ -1,7 +1,12 @@
+#!/usr/bin/env python
+
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
 
+from led import PWM_LED
+from temp_humi_sensor import TempHumiSensor
+from fan import Fan
 
 class DeviceController:
 
@@ -16,7 +21,7 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TempHumiSensor(1, "AH20", AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, 1))
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -26,7 +31,8 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            PWM_LED(12, ACommand(ACommand.Type.LIGHT_PULSE, "5")),
+            Fan(18, ACommand(ACommand.Type.FAN, "4"))
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -34,7 +40,7 @@ class DeviceController:
 
         :return list[AReading]: a list containing all readings collected from sensors.
         """
-        readings: list[AReading] = []
+        readings: list[AReading] = [sensor.read_sensor() for sensor in self._sensors]
 
         return readings
 
@@ -43,6 +49,8 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for index, actuator in enumerate(self._actuators):
+            actuator.control_actuator(commands[index % len(commands)].value)
 
 
 if __name__ == "__main__":
