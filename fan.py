@@ -18,7 +18,7 @@ class Fan(IActuator):
         return self.type == command.type
 
     def control_actuator(self, value: str) -> bool:
-        spinTime = int(value) if value.isdecimal() else 0
+        spinTime = int(value) if value.isdecimal() else 1
 
         oldValue = self.fan.value
         self.fan.on()
@@ -29,6 +29,6 @@ class Fan(IActuator):
         return oldValue == newValue
 
 
-if __name__ == "__main__":
-    fan = Fan(18, ACommand(ACommand.Type.FAN, "4"))
-    fan.control_actuator("10")
+# if __name__ == "__main__":
+#     fan = Fan(18, ACommand(ACommand.Type.FAN, "4"))
+#     fan.control_actuator("10")
