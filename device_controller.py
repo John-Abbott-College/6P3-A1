@@ -65,19 +65,19 @@ if __name__ == "__main__":
     device_manager = DeviceController()
     TEST_SLEEP_TIME = 2
 
-    commands = [
-        ACommand(ACommand.Type.FAN, "ON"),
-        ACommand(ACommand.Type.LIGHT_ON_OFF, "ON"),
-    ]
-
     while True:
         print(device_manager.read_sensors())
 
+        commands = [
+            ACommand(ACommand.Type.FAN, "ON"),
+            ACommand(ACommand.Type.LIGHT_ON_OFF, "ON"),
+        ]
+
         device_manager.control_actuators(commands)
+
+        sleep(TEST_SLEEP_TIME)
 
         commands = [
             ACommand(ACommand.Type.FAN, "OFF"),
             ACommand(ACommand.Type.LIGHT_ON_OFF, "OFF"),
         ]
-
-        sleep(TEST_SLEEP_TIME)
