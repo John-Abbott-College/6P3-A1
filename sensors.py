@@ -8,22 +8,22 @@ class AReading(ABC):
     """
 
     class Type(str, Enum):
-        """Enum defining all possible types of readings that sensors might make.
-        """
+        """Enum defining all possible types of readings that sensors might make."""
+
         # Add new reading types here.
-        TEMPERATURE = 'temperature'
-        HUMIDITY = 'humidity'
-        LUMINOSITY = 'luminosity'
+        TEMPERATURE = "temperature"
+        HUMIDITY = "humidity"
+        LUMINOSITY = "luminosity"
 
     class Unit(str, Enum):
-        """Enum defining all possible units for sensor measuremens.
-        """
+        """Enum defining all possible units for sensor measuremens."""
+
         # Add new reading units here.
-        MILLIMITERS = 'mm'
-        CELCIUS = '°C'
-        FAHRENHEIT = '°F'
-        HUMIDITY = '% HR'
-        UNITLESS = 'unitless'
+        MILLIMITERS = "mm"
+        CELCIUS = "°C"
+        FAHRENHEIT = "°F"
+        HUMIDITY = "% HR"
+        UNITLESS = "unitless"
 
     # Class properties that must be defined in implementation classes
     reading_type: Type
@@ -36,21 +36,19 @@ class AReading(ABC):
         self.value = value
 
     def __repr__(self) -> str:
-        """String representation of a reading object
-        """
+        """String representation of a reading object"""
         return f"{self.reading_type}: {self.value} {self.reading_unit}"
 
 
 class ISensor(ABC):
-    """Interface for all sensors.
-    """
+    """Interface for all sensors."""
 
     # Class properties that must be defined in implementation classes
     _sensor_model: str
     reading_type: AReading.Type
 
     @abstractmethod
-    def __init__(self, gpio: int,  model: str, type: AReading.Type):
+    def __init__(self, gpio: int, model: str, type: AReading.Type):
         """Constructor for Sensor  class. May be called from childclass.
 
         :param str model: specific model of sensor hardware. Ex. AHT20 or LTR-303ALS-01

@@ -8,11 +8,11 @@ class ACommand(ABC):
     """
 
     class Type(str, Enum):
-        """Enum defining types of actuators that can be targets for a command
-        """
-        FAN = 'fan'
-        LIGHT_ON_OFF = 'light-on-off'
-        LIGHT_PULSE = 'light-pulse'
+        """Enum defining types of actuators that can be targets for a command"""
+
+        FAN = "fan"
+        LIGHT_ON_OFF = "light-on-off"
+        LIGHT_PULSE = "light-pulse"
 
     # Class properties that must be defined in implementation classes
 
@@ -26,7 +26,7 @@ class ACommand(ABC):
         self.value: str = value
 
     def __repr__(self) -> str:
-        return f'Command setting {self.target_type} to {self.value}'
+        return f"Command setting {self.target_type} to {self.value}"
 
 
 class IActuator(ABC):
