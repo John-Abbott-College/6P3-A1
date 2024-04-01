@@ -5,16 +5,27 @@ from actuators import IActuator, ACommand
 class LEDActuator(IActuator):
 
     def __init__(self, gpio: int, type: ACommand.Type, initial_state: str) -> None:
-        super().__init__(gpio, type, initial_state)
-    # def __init__(self, gpio:int) -> None:
-    #     self.led = PWMLED(gpio)
-    #     self.duration = 0
+        self.led = PWMLED(gpio)
+        self.duration = initial_state
+        self.type = type
+
+    def validate_command(self, command: ACommand) -> bool:
+        try:
+            int(command.value)
+            return True
+        except:
+            return False
+
+    
 
     def control_actuator(self, value:str) -> bool:
         previous_duration = self.duration
 
         try:
-            self.duration = float(value)
+            if self.validate_command(ACommand(self.type, value)):
+                self.duration = float(value)
+            else:
+                raise Exception
         except TypeError:
             print(f"Invalid argument {value}, must be a float")
 
