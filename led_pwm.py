@@ -1,11 +1,13 @@
 from gpiozero import PWMLED
 from signal import pause
+from actuators import LEDActuator
 
 #TEST TEST TEST
 
-class LEDActuator:
-    def __init__(self, gpio:int) -> None:
+class LEDActuator(IActuator):
+    def __init__(self, command_type: ACommand.Type,gpio:int) -> None:
         self.led = PWMLED(gpio)
+        self.type = command_type
         self.duration = 0
 
     def control_actuator(self, value:str) -> bool:
