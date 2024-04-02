@@ -1,6 +1,6 @@
 from gpiozero import OutputDevice
 from time import sleep
-from gpiozero import FanActuator
+from actuators import IActuator, ACommand
 
 class FanActuator(IActuator):
     def __init__(self, gpio: int, command_type: ACommand.Type, initial_state: str = "0") -> None:
@@ -9,7 +9,7 @@ class FanActuator(IActuator):
         self.current_state = initial_state
         self.fan = OutputDevice(pin=gpio)
 
-    def validate_commad(self, command: ACommand) -> bool:
+    def validate_command(self, command: ACommand) -> bool:
         pass
 
     def control_actuator(self, value: str) -> bool:
@@ -23,7 +23,7 @@ class FanActuator(IActuator):
 
 
 def main():
-    fan_actuator = FanActuator(gpio=16)
+    fan_actuator = FanActuator(gpio=16, command_type=ACommand.Type.FAN)
     fan_actuator.control_actuator("1")
     print(f"Fan state: {fan_actuator.current_state}")
     sleep(2)
