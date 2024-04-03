@@ -29,7 +29,7 @@ class FanActuator(IActuator):
 
 
 def main():
-    fan_actuator = IActuator(gpio=16, type=ACommand.Type.LIGHT_PULSE)
+    fan_actuator = FanActuator(gpio=16, type=ACommand.Type.FAN)
     fan_actuator.control_actuator("1")
     print(f"Fan state: {fan_actuator.current_state}")
     sleep(2)
