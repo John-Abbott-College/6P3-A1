@@ -31,7 +31,7 @@ class DeviceController:
 
         return [
             FanActuator(16, ACommand.Type.FAN, "0"),
-            LEDActuator(12, ACommand.Type.LIGHT_ON_OFF, "0"),
+            LEDActuator(12, ACommand.Type.LIGHT_PULSE, "0"),
             # Instantiate each actuator inside this list, separate items by comma.
         ]
 
@@ -70,7 +70,7 @@ if __name__ == "__main__":
         print(device_manager.read_sensors())
 
         fake_command = ACommand(
-            ACommand.Type.LIGHT_ON_OFF, "2")
+            ACommand.Type.LIGHT_PULSE, "2")
 
         device_manager.control_actuators([fake_command])
 
