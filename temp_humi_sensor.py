@@ -12,7 +12,7 @@ class TempHumiditySensor(ISensor):
     def read_sensor(self) -> list[AReading]:
         temp, hum = self.sensor.read()
 
-        return list(AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temp), AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, hum))
+        return list[AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temp), AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, hum)]
 
     
 

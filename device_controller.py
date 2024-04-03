@@ -44,6 +44,8 @@ class DeviceController:
         for sensor in self._sensors:
             for reading in sensor.read_sensor():
                 readings.append(reading)
+        
+        print(readings)
         return readings
 
     def control_actuators(self, commands: list[ACommand]) -> None:
