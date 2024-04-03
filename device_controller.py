@@ -1,7 +1,10 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+
 from fan_control import FanActuator 
+from led_pwm import LEDActuator
+from temp_humi_sensor import TempHumiditySensor
 
 class DeviceController:
 
