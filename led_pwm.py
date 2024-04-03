@@ -1,5 +1,6 @@
 from gpiozero import PWMLED
 from signal import pause
+from time import sleep
 from actuators import IActuator, ACommand
 
 class LEDActuator(IActuator):
@@ -29,10 +30,18 @@ class LEDActuator(IActuator):
         except TypeError:
             print(f"Invalid argument {value}, must be a float")
 
-        self.led.pulse(
+        if self.type == ACommand.Type.LIGHT_PULSE:
+            self.led.pulse(
             fade_in_time = self.duration/2, 
             fade_out_time = self.duration/2, 
             n = 2, background=False)
+        else:
+            self.led.on()
+            sleep(self.duration/2)
+            self.led.off()
+            sleep(self.duration/2)
+
+        
 
         return previous_duration != self.duration
 
