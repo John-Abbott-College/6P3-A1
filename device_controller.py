@@ -71,3 +71,10 @@ if __name__ == "__main__":
         device_manager.control_actuators([fake_command])
 
         sleep(TEST_SLEEP_TIME)
+
+        second_command = ACommand(
+            ACommand.Type.FAN, "0")
+
+        device_manager.control_actuators([second_command])
+
+        sleep(TEST_SLEEP_TIME)
