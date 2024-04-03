@@ -1,6 +1,7 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+from temp_humi_sensor import TempHumiditySensor
 
 
 class DeviceController:
@@ -16,6 +17,7 @@ class DeviceController:
         """
 
         return [
+            TempHumiditySensor()
             # Instantiate each sensor inside this list, separate items by comma.
         ]
 
@@ -26,6 +28,8 @@ class DeviceController:
         """
 
         return [
+            IActuator(16, ACommand.Type.FAN, "0"),
+            IActuator(12, ACommand.Type.LIGHT_PULSE, "0"),
             # Instantiate each actuator inside this list, separate items by comma.
         ]
 
@@ -35,7 +39,8 @@ class DeviceController:
         :return list[AReading]: a list containing all readings collected from sensors.
         """
         readings: list[AReading] = []
-
+        for sensor in self._sensors:
+            readings.append(sensor.read_sensor())
         return readings
 
     def control_actuators(self, commands: list[ACommand]) -> None:
@@ -43,6 +48,10 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for actuator in self._actuators:
+            for command in commands:
+                if actuator.type == command.target_type:
+                    actuator.control_actuator(command.value)
 
 
 if __name__ == "__main__":
@@ -57,7 +66,7 @@ if __name__ == "__main__":
         print(device_manager.read_sensors())
 
         fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+            ACommand.Type.FAN, "1")
 
         device_manager.control_actuators([fake_command])
 
