@@ -10,16 +10,18 @@ class DeviceController:
 
     def __init__(self) -> None:
         self._sensors: list[ISensor] = self._initialize_sensors()
-        self._actuators: list[IActuator] = self._initialize_actuators()
+        #self._actuators: list[IActuator] = self._initialize_actuators()
 
     def _initialize_sensors(self) -> list[ISensor]:
         """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
-
         :return List[ISensor]: List of initialized sensors.
         """
 
+        sensor = TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.TEMPERATURE)
+       
         return [
             # Instantiate each sensor inside this list, separate items by comma.
+            sensor
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -28,8 +30,13 @@ class DeviceController:
         :return list[IActuator]: List of initialized actuators.
         """
 
+        fan_actuator = FanActuator(gpio=16, command_type=ACommand.Type.FAN)
+        led = LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
+
         return [
-            FanActuator(gpio=12, ACommand.Type.Fan), # Instantiate each actuator inside this list, separate items by comma.
+            fan_actuator,
+            led
+            # Instantiate each actuator inside this list, separate items by comma.
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -38,7 +45,10 @@ class DeviceController:
         :return list[AReading]: a list containing all readings collected from sensors.
         """
         readings: list[AReading] = []
-
+        for sensor in self._sensors:
+            for total_readings in sensor.read_sensor():
+                readings.append(total_readings)
+                   
         return readings
 
     def control_actuators(self, commands: list[ACommand]) -> None:
@@ -59,13 +69,13 @@ if __name__ == "__main__":
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
-        print(f"Fan state: {fan_actuator.current_state}")
-        sleep(2)
-        fan_actuator.control_actuator("0")
-        print(f"Fan state: {fan_actuator.current_state}")
-        sleep(2)
-        device_manager.control_actuators([fake_command])
+        # fake_command = ACommand(
+        #     ACommand.Type.FAN, "replace with a valid command value")
+        # print(f"Fan state: {fan_actuator.current_state}")
+        # sleep(2)
+        # fan_actuator.control_actuator("0")
+        # print(f"Fan state: {fan_actuator.current_state}")
+        # sleep(2)
+        # device_manager.control_actuators([fake_command])
 
-        sleep(TEST_SLEEP_TIME)
+        # sleep(TEST_SLEEP_TIME)
