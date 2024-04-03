@@ -19,9 +19,10 @@ class TempHumiditySensor(ISensor):
 def main():
     sensor = TempHumiditySensor()
     while True:
-        temperature, humidity = sensor.read_sensor()
-        print('Temperature in Celsius is {:.2f} C'.format(temperature))
-        print('Relative Humidity is {:.2f} %'.format(humidity))
+        outptut = sensor.read_sensor()
+        print(outptut)
+        # print('Temperature in Celsius is {:.2f} C'.format(temperature))
+        # print('Relative Humidity is {:.2f} %'.format(humidity))
         sleep(1)
 
 
