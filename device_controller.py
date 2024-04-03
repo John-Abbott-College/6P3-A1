@@ -1,6 +1,8 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+from fan_control import FanActuator
+from led_pwm import LEDActuator
 from temp_humi_sensor import TempHumiditySensor
 
 
@@ -28,8 +30,8 @@ class DeviceController:
         """
 
         return [
-            IActuator(16, ACommand.Type.FAN, "0"),
-            IActuator(12, ACommand.Type.LIGHT_PULSE, "0"),
+            FanActuator(16, ACommand.Type.FAN, "0"),
+            LEDActuator(12, ACommand.Type.LIGHT_PULSE, "0"),
             # Instantiate each actuator inside this list, separate items by comma.
         ]
 
