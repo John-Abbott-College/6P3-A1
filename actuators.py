@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from enum import Enum
 
 
+
 class ACommand(ABC):
     """Abstract class for actuator command. Can be instantiated directly or inherited.
     Also defines all possible command types via enums.

@@ -3,4 +3,5 @@
 
 # Python related
 __pycache__
-.venv
+.venv/
+.env
