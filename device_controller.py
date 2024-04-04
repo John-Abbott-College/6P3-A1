@@ -16,12 +16,11 @@ class DeviceController:
         """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
         :return List[ISensor]: List of initialized sensors.
         """
-
-        sensor = TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.TEMPERATURE)
-       
+        
         return [
             # Instantiate each sensor inside this list, separate items by comma.
-            sensor
+            TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.HUMIDITY),
+            
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -29,10 +28,11 @@ class DeviceController:
 
         :return list[IActuator]: List of initialized actuators.
         """
+
+        # Instantiate each actuator inside this list, separate items by comma.
         return [
             FanActuator(gpio=16, command_type=ACommand.Type.FAN),
             LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
-            # Instantiate each actuator inside this list, separate items by comma.
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -49,9 +49,23 @@ class DeviceController:
 
     def control_actuators(self, commands: list[ACommand]) -> None:
         """Controls actuators according to a list of commands. Each command is applied to it's respective actuator.
-
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+            for actuator in self._actuators:      
+                          
+                if actuator.type == command.target_type:
+                    print(actuator.validate_command(actuator))
+                    print(command.__repr__())
+                    actuator.control_actuator(command.value)                    
+                    sleep(2)
+                   
+               
+        return
+                
+                
+        
+
 
 
 if __name__ == "__main__":
@@ -62,17 +76,18 @@ if __name__ == "__main__":
 
     TEST_SLEEP_TIME = 2
 
-    while True:
-        print(device_manager.read_sensors())
-
-        fake_command = ACommand(
-            ACommand.Type.FAN, "on")
+    fan_command_on = ACommand(ACommand.Type.FAN, "1")
+    fan_command_off = ACommand(ACommand.Type.FAN, "0")
+    led_command = ACommand(ACommand.Type.LIGHT_PULSE, "2")
         
-        print(f"Fan state: {fan_actuator.current_state}")
-        sleep(2)
-        fan_actuator.control_actuator("0")
-        print(f"Fan state: {fan_actuator.current_state}")
-        sleep(2)
-        # device_manager.control_actuators([fake_command])
+    real_commands = [fan_command_on, fan_command_off, led_command]
+    fake_commands = [ACommand(ACommand.Type.FAN, "2"), ACommand(ACommand.Type.LIGHT_ON_OFF, "s")]
 
-        # sleep(TEST_SLEEP_TIME)
+    while True:
+        temp_reading, humid_reading = device_manager.read_sensors()
+        print('Temperature in Celsius is {:.2f} C'.format(temp_reading))
+        print('Relative Humidity is {:.2f} %'.format( humid_reading))
+        device_manager.control_actuators(real_commands)
+        #device_manager.control_actuators(fake_commands)
+
+        sleep(TEST_SLEEP_TIME)

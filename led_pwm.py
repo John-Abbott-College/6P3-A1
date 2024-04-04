@@ -30,7 +30,7 @@ class LEDActuator(IActuator):
 
 
 def main():
-    led = LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
+    led = LEDActuator(gpio=12, command_type=ACommand.Type.LIGHT_PULSE)
     duration = 2
     print(f"LED pulsing twice for {duration} seconds...")
     led.control_actuator(duration)

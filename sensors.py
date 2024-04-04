@@ -56,6 +56,7 @@ class ISensor(ABC):
         :param str model: specific model of sensor hardware. Ex. AHT20 or LTR-303ALS-01
         :param ReadingType type: Type of reading this sensor produces. Ex. 'TEMPERATURE'
         """
+        pass
 
     @abstractmethod
     def read_sensor(self) -> list[AReading]:
