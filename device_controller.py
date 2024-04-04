@@ -2,6 +2,10 @@ from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
 
+from fan_actuator import FanActuator
+from led_actuator import LEDActuator
+from temperature_sensor import TemperatureSensor
+from humidity_sensor import HumiditiySensor
 
 class DeviceController:
 
@@ -16,7 +20,8 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TemperatureSensor(26, "AHT20", AReading.Type.TEMPERATURE),
+            HumiditiySensor(26, "AHT20", AReading.Type.HUMIDITY),
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -26,7 +31,8 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            FanActuator(5, ACommand.Type.FAN, "0"),
+            FanActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -34,7 +40,12 @@ class DeviceController:
 
         :return list[AReading]: a list containing all readings collected from sensors.
         """
-        readings: list[AReading] = []
+        readings: list[AReading] = [
+            reading
+            for readings in 
+            (sensor.read_sensor() for sensor in self._sensors)
+            for reading in readings
+        ]
 
         return readings
 
@@ -43,6 +54,10 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.validate_command(command):
+                    actuator.control_actuator(command.value)
 
 
 if __name__ == "__main__":
@@ -57,7 +72,7 @@ if __name__ == "__main__":
         print(device_manager.read_sensors())
 
         fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+            ACommand.Type.FAN, "1")
 
         device_manager.control_actuators([fake_command])
 
