@@ -19,8 +19,8 @@ class DeviceController:
     """
     def _initialize_sensors(self) -> list[ISensor]:
         return [
-            TemperatureSensor(26, "AHT20", AReading.Type.TEMPERATURE),
-            HumiditiySensor(26, "AHT20", AReading.Type.HUMIDITY),
+            TemperatureSensor(4, "AHT20", AReading.Type.TEMPERATURE),
+            HumiditiySensor(4, "AHT20", AReading.Type.HUMIDITY),
         ]
 
     """Initializes all actuators and returns them as a list. Intended to be used in class constructor
@@ -29,7 +29,7 @@ class DeviceController:
     """
     def _initialize_actuators(self) -> list[IActuator]:
         return [
-            FanActuator(5, ACommand.Type.FAN, "0"),
+            FanActuator(22, ACommand.Type.FAN, "0"),
             FanActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
         ]
 
@@ -69,9 +69,13 @@ if __name__ == "__main__":
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "1")
+        fan_on = ACommand(ACommand.Type.FAN, "1")
+        fan_off = ACommand(ACommand.Type.FAN, "0")
 
-        device_manager.control_actuators([fake_command])
+        led_pulse = ACommand(ACommand.Type.LIGHT_PULSE, "1")
+        led_on = ACommand(ACommand.Type.LIGHT_ON_OFF, "1")
+        led_off = ACommand(ACommand.Type.LIGHT_ON_OFF, "0")
+
+        device_manager.control_actuators([fan_on])
 
         sleep(TEST_SLEEP_TIME)

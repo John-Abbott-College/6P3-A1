@@ -9,7 +9,7 @@ class FanActuator(IActuator):
 
     def validate_command(self, command: ACommand) -> bool:
         try:
-            value = int(value)
+            value = int(command.value)
             if value not in [ 0, 1 ]:
                 return False
         except (ValueError, TypeError):

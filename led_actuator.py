@@ -11,8 +11,12 @@ class LEDActuator(IActuator):
         # Validate the value is a float greater than 0.
         try:
             value = float(command.value)
-            if value < 0:
-                return False
+            if self.type == ACommand.Type.LIGHT_ON_OFF:
+                if not value in [0, 1]:
+                    return False
+            else:
+                if value < 0:
+                    return False
         except TypeError:
             return False
 
@@ -26,15 +30,20 @@ class LEDActuator(IActuator):
             self._current_state = float(value)
         except TypeError:
             print(f"Invalid argument {value}, must be a float")
-
-        self.led.pulse(
-            fade_in_time = self._current_state/2, 
-            fade_out_time = self._current_state/2, 
-            n = 2, background=False)
+        if self.type == ACommand.Type.LIGHT_ON_OFF:
+            if self._current_state == 1:
+                self.led.on()
+            else:
+                self.led.off()
+        else:
+            self.led.pulse(
+                fade_in_time = self._current_state/2, 
+                fade_out_time = self._current_state/2, 
+                n = 2, background=False)
 
         return previous_duration != self._current_state
 
 if __name__ == "__main__":
     led = LEDActuator(5, ACommand.Type.LIGHT_PULSE, "0")
     while True:
-        print(led.control_actuator("2"))
+        print(led.control_actuator("1"))
