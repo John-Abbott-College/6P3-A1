@@ -19,7 +19,7 @@ class DeviceController:
 
         #I got the idea for this from here: https://www.twilio.com/en-us/blog/environment-variables-python
         load_dotenv()
-        self.mode = os.getenv("prod")
+        self.controller_mode = os.getenv("prod")
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
@@ -28,7 +28,7 @@ class DeviceController:
         :return List[ISensor]: List of initialized sensors.
         """
         
-        if self.mode=="true":
+        if self.controller_mode=="true":
             return [
                 # Instantiate each sensor inside this list, separate items by comma.
                 TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.TEMPERATURE),            
@@ -45,7 +45,7 @@ class DeviceController:
         :return list[IActuator]: List of initialized actuators.
         """
 
-        if self.mode=="true":
+        if self.controller_mode=="true":
             return [
                 FanActuator(gpio=16, command_type=ACommand.Type.FAN),
                 LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
