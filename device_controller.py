@@ -1,7 +1,9 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
-
+from fan_control import FanActuator
+from led_pwm import LEDActuator
+from temp_humi_sensor import TempHumiditySensor
 
 class DeviceController:
 
@@ -17,6 +19,7 @@ class DeviceController:
 
         return [
             # Instantiate each sensor inside this list, separate items by comma.
+            TempHumiditySensor(gpio=26, model="AHT20", type=AReading.Type.TEMPERATURE)
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
