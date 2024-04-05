@@ -13,23 +13,21 @@ class DeviceController:
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
+    """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
+
+    :return List[ISensor]: List of initialized sensors.
+    """
     def _initialize_sensors(self) -> list[ISensor]:
-        """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
-
-        :return List[ISensor]: List of initialized sensors.
-        """
-
         return [
             TemperatureSensor(26, "AHT20", AReading.Type.TEMPERATURE),
             HumiditiySensor(26, "AHT20", AReading.Type.HUMIDITY),
         ]
 
+    """Initializes all actuators and returns them as a list. Intended to be used in class constructor
+
+    :return list[IActuator]: List of initialized actuators.
+    """
     def _initialize_actuators(self) -> list[IActuator]:
-        """Initializes all actuators and returns them as a list. Intended to be used in class constructor
-
-        :return list[IActuator]: List of initialized actuators.
-        """
-
         return [
             FanActuator(5, ACommand.Type.FAN, "0"),
             FanActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
