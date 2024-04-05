@@ -1,64 +1,38 @@
-from sensors import ISensor, AReading
+from fan_control import FanActuator
+from led_pwm import LEDActuator
+from temp_humi_sensor import TempHumiditySensor
 from time import sleep
-from actuators import IActuator, ACommand
 
 
-class DeviceController:
-
+class Device_Controller:
     def __init__(self) -> None:
-        self._sensors: list[ISensor] = self._initialize_sensors()
-        self._actuators: list[IActuator] = self._initialize_actuators()
+        self.led = LEDActuator(gpio=12)
+        self.fan = FanActuator(gpio=16)
+        self.sensor = TempHumiditySensor()
 
-    def _initialize_sensors(self) -> list[ISensor]:
-        """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
+    def control_actuators(self) -> None:
+        led_duration = "1" if self.led.duration == "2" else "2"
+        self.led.control_actuator(led_duration)
+        fan_state = "1" if self.fan.current_state == "0" else "0"
+        self.fan.control_actuator(fan_state)
 
-        :return List[ISensor]: List of initialized sensors.
-        """
+    def read_sensors(self) -> None:
+        print(f"{self.sensor.read_sensor()}") 
 
-        return [
-            # Instantiate each sensor inside this list, separate items by comma.
-        ]
+    def loop(self):
+        while True:
+            self.control_actuators()
+            self.read_sensors()
+            sleep(2)
 
-    def _initialize_actuators(self) -> list[IActuator]:
-        """Initializes all actuators and returns them as a list. Intended to be used in class constructor
 
-        :return list[IActuator]: List of initialized actuators.
-        """
-
-        return [
-            # Instantiate each actuator inside this list, separate items by comma.
-        ]
-
-    def read_sensors(self) -> list[AReading]:
-        """Reads data from all initialized sensors. 
-
-        :return list[AReading]: a list containing all readings collected from sensors.
-        """
-        readings: list[AReading] = []
-
-        return readings
-
-    def control_actuators(self, commands: list[ACommand]) -> None:
-        """Controls actuators according to a list of commands. Each command is applied to it's respective actuator.
-
-        :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
-        """
+def main():
+    controller = Device_Controller()
+    controller.loop()
 
 
 if __name__ == "__main__":
-    """This script is intented to be used as a module, however, code below can be used for testing.
-    """
-
-    device_manager = DeviceController()
-
-    TEST_SLEEP_TIME = 2
-
-    while True:
-        print(device_manager.read_sensors())
-
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
-
-        device_manager.control_actuators([fake_command])
-
-        sleep(TEST_SLEEP_TIME)
+    try: 
+        main()
+    except KeyboardInterrupt:
+        pass
