@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+import os
+
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
@@ -6,6 +9,8 @@ from led_pwm import LEDActuator
 from temp_humi_sensor import TempHumiditySensor
 
 class DeviceController:
+
+    
 
     def __init__(self) -> None:
         self._sensors: list[ISensor] = self._initialize_sensors()
