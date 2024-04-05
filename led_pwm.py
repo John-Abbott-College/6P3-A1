@@ -19,11 +19,13 @@ class LEDActuator(IActuator):
         previous_state= self.led.is_active
 
         if self.type == ACommand.Type.LIGHT_PULSE:
-            if value.upper() == "ON":
-                self.led.pulse(2,2,2,False)
-                
-            elif value.upper() == "OFF":
-                self.led.off()
+            print(value)
+            if value.isnumeric():
+                print("in")
+                self.led.pulse(float(value))
+            else:
+                print("out")
+                return False
         elif self.type == ACommand.Type.LIGHT_ON_OFF:
             if value.upper() == "ON":
                 self.led.on()

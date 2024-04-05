@@ -32,7 +32,7 @@ class DeviceController:
         return [
             # Instantiate each actuator inside this list, separate items by comma.
             FanActuator(22, ACommand.Type.FAN, "OFF"),
-            LEDActuator(18, ACommand.Type.LIGHT_ON_OFF, "OFF")
+            LEDActuator(18, ACommand.Type.LIGHT_PULSE, "2")
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
         commands = [
             ACommand(ACommand.Type.FAN, "ON"),
-            ACommand(ACommand.Type.LIGHT_ON_OFF, "ON"),
+            ACommand(ACommand.Type.LIGHT_PULSE, "6"),
         ]
         device_manager.control_actuators(commands)
 
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
         commands = [
             ACommand(ACommand.Type.FAN, "OFF"),
-            ACommand(ACommand.Type.LIGHT_ON_OFF, "OFF"),
+            ACommand(ACommand.Type.LIGHT_PULSE, "OFF"),
         ]
 
         device_manager.control_actuators(commands)
