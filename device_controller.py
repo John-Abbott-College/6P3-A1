@@ -27,6 +27,8 @@ class DeviceController:
 
         return [
             # Instantiate each actuator inside this list, separate items by comma.
+            FanActuator(gpio=16, myType=ACommand.Type.FAN),
+            LEDActuator(gpio=12, myType = ACommand.Type.LIGHT_PULSE)
         ]
 
     def read_sensors(self) -> list[AReading]:
