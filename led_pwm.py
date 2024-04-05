@@ -10,7 +10,7 @@ class LEDActuator(IActuator):
         self.duration = 0
 
     def validate_command(self, command: ACommand) -> bool:
-        pass
+        return command.target_type == self.type
 
     def control_actuator(self, value:str) -> bool:
         previous_duration = self.duration

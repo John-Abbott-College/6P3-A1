@@ -11,7 +11,7 @@ class FanActuator(IActuator):
         self.fan = OutputDevice(pin=gpio)
 
     def validate_command(self, command: ACommand) -> bool:
-        pass
+        return command.target_type == self.type
 
     def control_actuator(self, value: str) -> bool:
         previous_state = self.current_state
