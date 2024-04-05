@@ -7,9 +7,9 @@ from actuators import IActuator, ACommand
 from fan_control import FanActuator 
 from led_pwm import LEDActuator
 from temp_humi_sensor import TempHumiditySensor
-from mock_fan_control import FakeFanActuator
-from mock_led_pwm import FakeLEDActuator
-from mock_temp_humi_sensor import FakeTempHumiditySensor
+from fake_fan_control import FakeFanActuator
+from fake_led_pwm import FakeLEDActuator
+from fake_temp_humi_sensor import FakeTempHumiditySensor
 
 class DeviceController:
 
@@ -17,8 +17,9 @@ class DeviceController:
 
     def __init__(self) -> None:
 
+        #I got the idea for this from here: https://www.twilio.com/en-us/blog/environment-variables-python
         load_dotenv()
-        self.PROD = os.getenv("PROD")
+        self.mode = os.getenv("prod")
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
@@ -27,7 +28,7 @@ class DeviceController:
         :return List[ISensor]: List of initialized sensors.
         """
         
-        if self.PROD==true:
+        if self.mode=="true":
             return [
                 # Instantiate each sensor inside this list, separate items by comma.
                 TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.TEMPERATURE),            
@@ -44,15 +45,15 @@ class DeviceController:
         :return list[IActuator]: List of initialized actuators.
         """
 
-        if self.PROD==true:
+        if self.mode=="true":
             return [
                 FanActuator(gpio=16, command_type=ACommand.Type.FAN),
                 LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
             ]
         else: 
             return [
-                FakeFanActuator(),
-                FakeLEDActuator()     
+                FakeFanActuator(command_type=ACommand.Type.FAN),
+                FakeLEDActuator(command_type=ACommand.Type. LIGHT_PULSE)    
             ]
 
         # Instantiate each actuator inside this list, separate items by comma.
