@@ -1,6 +1,6 @@
 from actuators import IActuator, ACommand
 
-class LEDActuator(IActuator):
+class FakeLEDActuator(IActuator):
      def __init__(self, command_type: ACommand.Type) -> None:
         self.type = command_type
 
@@ -11,6 +11,6 @@ class LEDActuator(IActuator):
     #This prints out the words if the fan is running or not depending on the value
     def control_actuator(self, value: str) -> bool:
         if(value.isnumeric())
-            print(f"The mock light is turning ON, with a value of {value}")
+            print(f"The fake light is turning ON, with a value of {value}")
         else
-            print(f"The mock light doesn't recognize the value of {value}")
+            print(f"The fake light doesn't recognize the value of {value}")
