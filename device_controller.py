@@ -1,13 +1,25 @@
+from dotenv import load_dotenv
+import os
+
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
 from fan_control import FanActuator 
 from led_pwm import LEDActuator
 from temp_humi_sensor import TempHumiditySensor
+from fake_fan_control import FakeFanActuator
+from fake_led_pwm import FakeLEDActuator
+from fake_temp_humi_sensor import FakeTempHumiditySensor
 
 class DeviceController:
 
+
+
     def __init__(self) -> None:
+
+        #I got the idea for this from here: https://www.twilio.com/en-us/blog/environment-variables-python
+        load_dotenv()
+        self.controller_mode = os.getenv("prod")
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
@@ -16,11 +28,16 @@ class DeviceController:
         :return List[ISensor]: List of initialized sensors.
         """
         
-        return [
-            # Instantiate each sensor inside this list, separate items by comma.
-            TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.TEMPERATURE),
-            
-        ]
+        if self.controller_mode=="true":
+            return [
+                # Instantiate each sensor inside this list, separate items by comma.
+                TempHumiditySensor(gpio=26, model="AHT20", command_type=AReading.Type.TEMPERATURE),            
+            ]
+        else: 
+            return [
+                    # Instantiate each sensor inside this list, separate items by comma.
+                    FakeTempHumiditySensor()            
+            ]
 
     def _initialize_actuators(self) -> list[IActuator]:
         """Initializes all actuators and returns them as a list. Intended to be used in class constructor
@@ -28,11 +45,19 @@ class DeviceController:
         :return list[IActuator]: List of initialized actuators.
         """
 
+        if self.controller_mode=="true":
+            return [
+                FanActuator(gpio=16, command_type=ACommand.Type.FAN),
+                LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
+            ]
+        else: 
+            return [
+                FakeFanActuator(command_type=ACommand.Type.FAN),
+                FakeLEDActuator(command_type=ACommand.Type. LIGHT_PULSE)    
+            ]
+
         # Instantiate each actuator inside this list, separate items by comma.
-        return [
-            FanActuator(gpio=16, command_type=ACommand.Type.FAN),
-            LEDActuator(gpio=12, command_type=ACommand.Type. LIGHT_PULSE)
-        ]
+        
 
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors. 
@@ -65,11 +90,6 @@ class DeviceController:
                    
                
         return
-                
-                
-        
-
-
 
 if __name__ == "__main__":
     """This script is intented to be used as a module, however, code below can be used for testing.
