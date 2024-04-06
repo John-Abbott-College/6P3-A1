@@ -10,6 +10,11 @@ import time
 #Initialize the device controller her to get the methods
 device_controller = DeviceController()
 
+#Had to make the 
+temperature_readings = []
+humidity_readings = []
+time_readings = []
+
 # Initialize the app
 app = dash.Dash(__name__)
 
@@ -33,7 +38,7 @@ app.layout = html.Div([
         'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
 
     html.Div([
-        html.H1("Temperature/Humidity Monitor", style={'text-align': 'center', 'margin-bottom': '20px', 'font-family': 'Arial, sans-serif'}),
+        html.H1("Temperature/Humidity Monitor", style={'text-align': 'center', 'margin-bottom': '20px', 'font-family': 'Verdana'}),
         dcc.Graph(id='live-temp-humid-graph'),
         dcc.Interval(
                 id='interval-readings',
@@ -84,12 +89,50 @@ def fan_button_controller(on, off):
     prevent_initial_call=True
 )
 
-def sensor_graph_readings(n)
-    temperature_readings = []
-    humidity_readings = []
-    time = []
+def sensor_graph_readings(n):
 
-    temperature_readings, humidity_readings = device_manager.read_sensors()
+    read_time = time.strftime('%H:%M:%S')
+    temperature, humidity = device_controller.read_sensors()
+
+    temperature_readings.append(temperature)
+    humidity_readings.append(humidity)
+    time_readings.append(read_time)
+
+    #Updating the graph here
+    temperature_line_plot= graphing.Scatter(
+        x=time_readings,
+        y=temperature_readings,
+        name='Temperature (°C)',
+        mode='lines+markers',
+        line=dict(
+            color='red'
+        )
+    )
+
+    humidity_line_plot= graphing.Scatter(
+        x=time_readings,
+        y=humidity_readings,
+        name='Humidity (%)',
+        mode='lines+markers',
+        line=dict(
+            color='pink'
+        )
+    )
+
+    layout = graphing.Layout(
+        title='Temperature and Humidity Readings',
+        xaxis=dict(title='Time'),
+        yaxis=dict(title='Temperature/Humidity')
+    )
+
+    figure_made = graphing.Figure(data=[temperature_line_plot, humidity_line_plot], layout=layout)
+
+
+    
+    dcc.Graph(figure=figure_made)
+    return figure_made
+
+
 
 # Run the app
 if __name__ == '__main__':
