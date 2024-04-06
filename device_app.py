@@ -16,7 +16,7 @@ humidity_readings = []
 time_readings = []
 
 # Initialize the app
-app = dash.Dash(__name__)
+app = dash.Dash(__name__, suppress_callback_exceptions=True)
 
 
 #I got the idea to stack the buttons vertically using flex from here:
@@ -36,18 +36,31 @@ app.layout = html.Div([
         'border-radius':'4px'}),        
     ], style={'display': 'flex', 'flex-direction': 'column', 
         'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
-
-    html.Div([
-        html.H1("Temperature/Humidity Monitor", style={'text-align': 'center', 'margin-bottom': '20px', 'font-family': 'Verdana'}),
-        dcc.Graph(id='live-temp-humid-graph'),
-        dcc.Interval(
-                id='interval-readings',
-                interval=5000, 
-                n_intervals=0
-            )
-        ], style={'margin-bottom': '50px'})    
+    
+    dcc.Tabs(id='tabs', value='tab-1',
+            children=[
+                dcc.Tab(label='Temperature Levels', value='tab-1'),
+                dcc.Tab(label='Humidity Levels', value='tab-2')
+            ]),
+    html.Div(id='tabs-content', style={'margin-bottom':'50px'})
     ], style={'margin': '50px auto', 'width': '50%', 'text-align': 'center'}
 )
+
+
+
+tab1_content=html.Div([
+    dcc.Graph(id='temperature-graph'),
+    dcc.Interval(id='temperature-interval', 
+                interval=5000,
+                n_intervals=0)
+])
+
+tab2_content=html.Div([
+    dcc.Graph(id='humidity-graph'),
+    dcc.Interval(id='humidity-interval', 
+                interval=5000,
+                n_intervals=0)
+])
 
 
 @app.callback(
@@ -83,23 +96,28 @@ def fan_button_controller(on, off):
     else:
         return 0,0
 
+
+#New stuff with tabs and graphs here:
+
+def render_content(tab):
+    if tab=='tab-1':
+        return tab1_content
+    elif tab=='tab-2':
+        return tab2_content
+
 @app.callback(
-    Output('live-temp-humid-graph', 'figure'),
-    Input('interval-readings', 'n_intervals'),
-    prevent_initial_call=True
+    Output('temperature-graph', 'figure'),
+    Input('temperature-interval', 'n_intervals'),
+    suppress_callback_exceptions=True
 )
-
-def sensor_graph_readings(n):
-
+def temperature_graph_readings(n):
     read_time = time.strftime('%H:%M:%S')
-    temperature, humidity = device_controller.read_sensors()
+    temperature, _ = device_controller.read_sensors()
 
     temperature_readings.append(temperature)
-    humidity_readings.append(humidity)
     time_readings.append(read_time)
 
-    #Updating the graph here
-    temperature_line_plot= graphing.Scatter(
+    temperature_line_plot = graphing.Scatter(
         x=time_readings,
         y=temperature_readings,
         name='Temperature (°C)',
@@ -109,7 +127,29 @@ def sensor_graph_readings(n):
         )
     )
 
-    humidity_line_plot= graphing.Scatter(
+    layout = graphing.Layout(
+        title='Temperature Readings',
+        xaxis=dict(title='Time'),
+        yaxis=dict(title='Temperature')
+    )
+
+    figure_made = graphing.Figure(data=[temperature_line_plot], layout=layout)
+    return figure_made
+
+
+@app.callback(
+    Output('humidity-graph', 'figure'),
+    Input('humidity-interval', 'n_intervals'),
+    suppress_callback_exceptions=True
+)
+def humidity_graph_readings(n):
+    read_time = time.strftime('%H:%M:%S')
+    _, humidity = device_controller.read_sensors()
+
+    humidity_readings.append(humidity)
+    time_readings.append(read_time)
+
+    humidity_line_plot = graphing.Scatter(
         x=time_readings,
         y=humidity_readings,
         name='Humidity (%)',
@@ -120,19 +160,13 @@ def sensor_graph_readings(n):
     )
 
     layout = graphing.Layout(
-        title='Temperature and Humidity Readings',
+        title='Humidity Readings',
         xaxis=dict(title='Time'),
-        yaxis=dict(title='Temperature/Humidity')
+        yaxis=dict(title='Humidity')
     )
 
-    figure_made = graphing.Figure(data=[temperature_line_plot, humidity_line_plot], layout=layout)
-
-
-    
-    dcc.Graph(figure=figure_made)
+    figure_made = graphing.Figure(data=[humidity_line_plot], layout=layout)
     return figure_made
-
-
 
 # Run the app
 if __name__ == '__main__':
