@@ -1,11 +1,11 @@
 # Import packages
 import dash
-from dash import html, callback, callback_context, ctx
+from dash import html, callback, callback_context, ctx, dcc
 from dash.dependencies import Input, Output
-import pandas as pd
-import plotly.express as px
 from device_controller import DeviceController
 from actuators import ACommand
+import plotly.graph_objs as graphing
+import time
 
 #Initialize the device controller her to get the methods
 device_controller = DeviceController()
@@ -13,6 +13,9 @@ device_controller = DeviceController()
 # Initialize the app
 app = dash.Dash(__name__)
 
+
+#I got the idea to stack the buttons vertically using flex from here:
+# https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
 app.layout = html.Div([
     html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#FFC0CB', 'font-family':'Verdana', 'text-align': 'center'}),
     html.Hr(),
@@ -27,10 +30,19 @@ app.layout = html.Div([
         'color':'white', 'border-color': '#FFC0CB', 'font-family': 'Arial, sans-serif', 
         'border-radius':'4px'}),        
     ], style={'display': 'flex', 'flex-direction': 'column', 
-        'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),    
-#I got the idea to stack the buttons vertically using flex from here:
-# https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
-])
+        'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
+
+    html.Div([
+        html.H1("Temperature/Humidity Monitor", style={'text-align': 'center', 'margin-bottom': '20px', 'font-family': 'Arial, sans-serif'}),
+        dcc.Graph(id='live-temp-humid-graph'),
+        dcc.Interval(
+                id='interval-readings',
+                interval=5000, 
+                n_intervals=0
+            )
+        ], style={'margin-bottom': '50px'})    
+    ], style={'margin': '50px auto', 'width': '50%', 'text-align': 'center'}
+)
 
 
 @app.callback(
@@ -66,7 +78,18 @@ def fan_button_controller(on, off):
     else:
         return 0,0
 
+@app.callback(
+    Output('live-temp-humid-graph', 'figure'),
+    Input('interval-readings', 'n_intervals'),
+    prevent_initial_call=True
+)
 
+def sensor_graph_readings(n)
+    temperature_readings = []
+    humidity_readings = []
+    time = []
+
+    temperature_readings, humidity_readings = device_manager.read_sensors()
 
 # Run the app
 if __name__ == '__main__':
