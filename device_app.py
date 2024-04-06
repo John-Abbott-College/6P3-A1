@@ -46,7 +46,9 @@ app.layout = html.Div([
     ], style={'margin': '50px auto', 'width': '50%', 'text-align': 'center'}
 )
 
-
+#I got the idea to use the tabs with graphs from here:
+#https://www.youtube.com/watch?v=g3VQAVz_0qo 
+#https://dash.plotly.com/dash-core-components/tabs
 
 tab1_content=html.Div([
     dcc.Graph(id='temperature-graph'),
