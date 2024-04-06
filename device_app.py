@@ -1,6 +1,7 @@
 # Import packages
 import dash
-from dash import Dash, html, dash_table, dcc, callback, Output, Input, ctx
+from dash import html, callback, callback_context, ctx
+from dash.dependencies import Input, Output
 import pandas as pd
 import plotly.express as px
 from device_controller import DeviceController
@@ -10,37 +11,61 @@ from actuators import ACommand
 device_controller = DeviceController()
 
 # Initialize the app
-app = Dash(__name__)
+app = dash.Dash(__name__)
 
 app.layout = html.Div([
-    html.Div(children='Control the Raspberry Pi with Buttons'),
+    html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#FFC0CB', 'font-family':'Verdana', 'text-align': 'center'}),
     html.Hr(),
-    dcc.Button('Fan On', id='fan-on-button'),
-    dcc.Button('Fan Off', id='fan-off-button')
+    html.Div([
+        html.Button('Turn Light On', id='light-button', style={'background-color': '#FFC0CB', 
+        'color':'white', 'border-color': '#FFC0CB','font-family': 'Arial, sans-serif', 
+        'margin': '10px', 'border-radius':'4px'}),
+        html.Button('Fan On', id='fan-on-button', style={'background-color': '#FFC0CB', 
+        'color':'white', 'border-color': '#FFC0CB','font-family': 'Arial, sans-serif', 
+        'margin': '10px', 'border-radius':'4px'}),
+        html.Button('Fan Off', id='fan-off-button', style={'background-color': '#FFC0CB', 
+        'color':'white', 'border-color': '#FFC0CB', 'font-family': 'Arial, sans-serif', 
+        'border-radius':'4px'}),        
+    ], style={'display': 'flex', 'flex-direction': 'column', 
+        'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),    
+#I got the idea to stack the buttons vertically using flex from here:
+# https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
 ])
 
 
-@callback(
-    Output('fan-on-button', 'n-clicks'),
-    Output('fan-off-button', 'n-clicks'),
-    Input('fan-on-button', 'n-clicks'),
-    Input('fan-off-button', 'n-clicks'),
+@app.callback(
+    Output('light-button', 'n_clicks'),
+    Input('light-button', 'n_clicks'),
+)
+
+#I got the button with the if statement and ctx idea from here: 
+#https://dash.plotly.com/dash-html-components/button#determining-which-button-changed-with-dash.ctx
+def light_button_controller(on):
+    if 'light-button' == ctx.triggered_id: 
+        device_controller.control_actuators([ACommand(ACommand.Type.LIGHT_PULSE, "3")])
+        return 1
+
+
+@app.callback(
+    Output('fan-on-button', 'n_clicks'),
+    Output('fan-off-button', 'n_clicks'),
+    Input('fan-on-button', 'n_clicks'),
+    Input('fan-off-button', 'n_clicks'),
     prevent_initial_call=True
 )
 
-def fan_button_controller(on, off):
-    #I got this idea from here: 
-    #https://dash.plotly.com/dash-html-components/button#determining-which-button-changed-with-dash.ctx
-    if ctx.triggered_id == 'fan-on-button.n_clicks':
-        gofuckyourself = [ACommand(ACommand.Type.FAN, "1")]
-        device_controller.control_actuators(gofuckyourself)
-        return 0, None
-    elif ctx.triggered_id == 'fan-off-button.n_clicks':
-        fuckoff = [ACommand(ACommand.Type.FAN, "0")]
-        device_controller.control_actuators(fuckoff)
-        return None, 0 
+#I got the button with the if statement and ctx idea from here: 
+#https://dash.plotly.com/dash-html-components/button#determining-which-button-changed-with-dash.ctx
+def fan_button_controller(on, off):  
+    if 'fan-on-button' == ctx.triggered_id: 
+        device_controller.control_actuators([ACommand(ACommand.Type.FAN, "1")])
+        return 1,0
+    elif 'fan-off-button' == ctx.triggered_id:  
+        device_controller.control_actuators([ACommand(ACommand.Type.FAN, "0")])
+        return 0,1 
     else:
-        return None, None
+        return 0,0
+
 
 
 # Run the app
