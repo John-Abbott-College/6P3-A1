@@ -1,3 +1,4 @@
+
 # Import packages
 import dash
 from dash import html, callback, callback_context, ctx, dcc
@@ -10,59 +11,44 @@ import time
 #Initialize the device controller her to get the methods
 device_controller = DeviceController()
 
-#Had to make the 
+#Had to make the arrays to read the outputs of the sensor
 temperature_readings = []
 humidity_readings = []
 time_readings = []
 
 # Initialize the app
-app = dash.Dash(__name__, suppress_callback_exceptions=True)
+app = dash.Dash(__name__)
 
 
 #I got the idea to stack the buttons vertically using flex from here:
 # https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
 app.layout = html.Div([
-    html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#FFC0CB', 'font-family':'Verdana', 'text-align': 'center'}),
+    html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
     html.Hr(),
     html.Div([
-        html.Button('Turn Light On', id='light-button', style={'background-color': '#FFC0CB', 
-        'color':'white', 'border-color': '#FFC0CB','font-family': 'Arial, sans-serif', 
+        html.Button('Turn Light On', id='light-button', style={'background-color': '#DB1F48', 
+        'color':'white', 'border-color': '#DB1F48','font-family': 'Arial, sans-serif', 
         'margin': '10px', 'border-radius':'4px'}),
-        html.Button('Fan On', id='fan-on-button', style={'background-color': '#FFC0CB', 
-        'color':'white', 'border-color': '#FFC0CB','font-family': 'Arial, sans-serif', 
+        html.Button('Fan On', id='fan-on-button', style={'background-color': '#004369', 
+        'color':'white', 'border-color': '#004369','font-family': 'Arial, sans-serif', 
         'margin': '10px', 'border-radius':'4px'}),
         html.Button('Fan Off', id='fan-off-button', style={'background-color': '#FFC0CB', 
         'color':'white', 'border-color': '#FFC0CB', 'font-family': 'Arial, sans-serif', 
         'border-radius':'4px'}),        
     ], style={'display': 'flex', 'flex-direction': 'column', 
         'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
-    
-    dcc.Tabs(id='tabs', value='tab-1',
-            children=[
-                dcc.Tab(label='Temperature Levels', value='tab-1'),
-                dcc.Tab(label='Humidity Levels', value='tab-2')
-            ]),
-    html.Div(id='tabs-content', style={'margin-bottom':'50px'})
+
+    html.Div([
+      html.H3(children='Temperature and Humidity Graph', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+        dcc.Graph(id='live-temp-humid-graph'),
+        dcc.Interval(
+                id='interval-readings',
+                interval=5000, 
+                n_intervals=0
+            )
+        ], style={'margin-bottom': '50px', 'textAlign': 'center'})    
     ], style={'margin': '50px auto', 'width': '50%', 'text-align': 'center'}
 )
-
-#I got the idea to use the tabs with graphs from here:
-#https://www.youtube.com/watch?v=g3VQAVz_0qo 
-#https://dash.plotly.com/dash-core-components/tabs
-
-tab1_content=html.Div([
-    dcc.Graph(id='temperature-graph'),
-    dcc.Interval(id='temperature-interval', 
-                interval=5000,
-                n_intervals=0)
-])
-
-tab2_content=html.Div([
-    dcc.Graph(id='humidity-graph'),
-    dcc.Interval(id='humidity-interval', 
-                interval=5000,
-                n_intervals=0)
-])
 
 
 @app.callback(
@@ -98,77 +84,60 @@ def fan_button_controller(on, off):
     else:
         return 0,0
 
-
-#New stuff with tabs and graphs here:
-
-def render_content(tab):
-    if tab=='tab-1':
-        return tab1_content
-    elif tab=='tab-2':
-        return tab2_content
-
 @app.callback(
-    Output('temperature-graph', 'figure'),
-    Input('temperature-interval', 'n_intervals'),
-    suppress_callback_exceptions=True
+    Output('live-temp-humid-graph', 'figure'),
+    Input('interval-readings', 'n_intervals'),
+    prevent_initial_call=True
 )
-def temperature_graph_readings(n):
-    read_time = time.strftime('%H:%M:%S')
-    temperature, _ = device_controller.read_sensors()
 
-    temperature_readings.append(temperature)
+
+#I got the help for this part from these sources:
+#https://dash.plotly.com/tutorial
+#https://www.youtube.com/watch?v=g3VQAVz_0qo
+#https://plotly.com/python/reference/scatter/
+def sensor_graph_readings(n):
+
+    figure_made = graphing.Figure()
+    read_time = time.strftime('%H:%M:%S')
+    temperature, humidity = device_controller.read_sensors()
+    humidity_readings.append(humidity)    
+    temperature_readings.append(temperature)   
     time_readings.append(read_time)
 
-    temperature_line_plot = graphing.Scatter(
-        x=time_readings,
-        y=temperature_readings,
-        name='Temperature (°C)',
-        mode='lines+markers',
-        line=dict(
-            color='red'
-        )
-    )
-
-    layout = graphing.Layout(
-        title='Temperature Readings',
-        xaxis=dict(title='Time'),
-        yaxis=dict(title='Temperature')
-    )
-
-    figure_made = graphing.Figure(data=[temperature_line_plot], layout=layout)
-    return figure_made
-
-
-@app.callback(
-    Output('humidity-graph', 'figure'),
-    Input('humidity-interval', 'n_intervals'),
-    suppress_callback_exceptions=True
-)
-def humidity_graph_readings(n):
-    read_time = time.strftime('%H:%M:%S')
-    _, humidity = device_controller.read_sensors()
-
-    humidity_readings.append(humidity)
-    time_readings.append(read_time)
-
-    humidity_line_plot = graphing.Scatter(
+    #Updating the humidity part of the graph here    
+    figure_made.add_trace(graphing.Scatter(
         x=time_readings,
         y=humidity_readings,
         name='Humidity (%)',
-        mode='lines+markers',
+        mode='lines+markers+text',
         line=dict(
-            color='pink'
+            color='black'
         )
-    )
+    ))
+    #Updating the temperature part of the graph here    
+    figure_made.add_trace(graphing.Scatter(
+        x=time_readings,
+        y=temperature_readings,
+        name='Temperature (°C)',
+        mode='lines+markers+text',
+        line=dict(
+            color='red'
+        )
+    ))
 
-    layout = graphing.Layout(
-        title='Humidity Readings',
+    #Adding both graphs to the layout
+    layout = graphing.Layout(     
+        title='Temperature/Humidity Readings',  
         xaxis=dict(title='Time'),
-        yaxis=dict(title='Humidity')
+        yaxis=dict(title='Temperature/Humidity'),
     )
 
-    figure_made = graphing.Figure(data=[humidity_line_plot], layout=layout)
+
+    figure_made.update_layout(layout)
+    
     return figure_made
+
+
 
 # Run the app
 if __name__ == '__main__':
