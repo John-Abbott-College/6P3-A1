@@ -3,7 +3,7 @@ from time import sleep
 from actuators import IActuator,ACommand
 
 
-class FanActuator:
+class FanActuator(IActuator):
     def __init__(self, gpio: int, type:ACommand.Type, initial_state: str = "0") -> None:
         self.gpio = gpio
         self.current_state = initial_state

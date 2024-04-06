@@ -1,10 +1,15 @@
 from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
 from time import sleep
+from sensors import ISensor,AReading
 
-
-class TempHumiditySensor: 
-    def __init__(self, address:hex=0x38, bus:int=4) -> None:
-        self.sensor = GroveTemperatureHumidityAHT20(address = address, bus = bus)
+class TempHumiditySensor(ISensor): 
+    def __init__(self, gpio: int,  model: str, type: AReading.Type) -> None:
+         address = 0x38
+         bus = 4 
+         self.sensor = GroveTemperatureHumidityAHT20(address =address, bus = bus)
+         self.gpio=gpio
+         self.model = model
+         self.type=type
 
     def read_sensor(self) -> list[float]: 
         return list(self.sensor.read())

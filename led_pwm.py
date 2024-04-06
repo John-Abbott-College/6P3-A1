@@ -1,8 +1,9 @@
 from gpiozero import PWMLED
 from signal import pause
+from actuators import IActuator,ACommand
 
-class LEDActuator:
-    def __init__(self, gpio:int) -> None:
+class LEDActuator(IActuator):
+    def __init__(self, gpio:int, type:ACommand.Type, initial_state: str = "0") -> None:
         self.led = PWMLED(gpio)
         self.duration = 0
 
@@ -23,7 +24,7 @@ class LEDActuator:
 
 
 def main():
-    led = LEDActuator(gpio=12)
+    led = LEDActuator(gpio=12,type=ACommand.Type.LIGHT_PULSE)
     duration = 2
     print(f"LED pulsing twice for {duration} seconds...")
     led.control_actuator(duration)
