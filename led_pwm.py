@@ -14,7 +14,7 @@ class LEDActuator(IActuator):
     #sure valid types are passed in
     #Got the idea for command.value.isnumeric() from here: https://www.tutorialsteacher.com/python/string-isnumeric
     def validate_command(self, command: ACommand) -> bool:
-        return command.value >= 1 and command.value.isnumeric()
+        return (command.target_type == ACommand.Type.LIGHT_PULSE) and command.value.isnumeric()
 
     def control_actuator(self, value:str) -> bool:
         previous_duration = self.duration
