@@ -12,7 +12,7 @@ class FanActuator(IActuator):
     #Borrowed this validation code from programming 4 last year, where we compare to make 
     #sure valid types are passed in
     def validate_command(self, command: ACommand) -> bool:
-        return (command.value == "1" or command.value == "0") and command.target_type == self.type
+        return (command.value == "1" or command.value == "0")
 
     def control_actuator(self, value: str) -> bool:
         previous_state = self.current_state
