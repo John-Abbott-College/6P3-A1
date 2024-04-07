@@ -2,6 +2,10 @@ from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
 
+from fan_actuator import FanActuator
+from led_actuator import LEDActuator
+from temperature_sensor import TemperatureSensor
+from humidity_sensor import HumiditiySensor
 
 class DeviceController:
 
@@ -9,24 +13,24 @@ class DeviceController:
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
+    """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
+
+    :return List[ISensor]: List of initialized sensors.
+    """
     def _initialize_sensors(self) -> list[ISensor]:
-        """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
-
-        :return List[ISensor]: List of initialized sensors.
-        """
-
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TemperatureSensor(4, "AHT20", AReading.Type.TEMPERATURE),
+            HumiditiySensor(4, "AHT20", AReading.Type.HUMIDITY),
         ]
 
+    """Initializes all actuators and returns them as a list. Intended to be used in class constructor
+
+    :return list[IActuator]: List of initialized actuators.
+    """
     def _initialize_actuators(self) -> list[IActuator]:
-        """Initializes all actuators and returns them as a list. Intended to be used in class constructor
-
-        :return list[IActuator]: List of initialized actuators.
-        """
-
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            FanActuator(22, ACommand.Type.FAN, "0"),
+            LEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -34,7 +38,12 @@ class DeviceController:
 
         :return list[AReading]: a list containing all readings collected from sensors.
         """
-        readings: list[AReading] = []
+        readings: list[AReading] = [
+            reading
+            for readings in 
+            (sensor.read_sensor() for sensor in self._sensors)
+            for reading in readings
+        ]
 
         return readings
 
@@ -43,6 +52,10 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.validate_command(command):
+                    actuator.control_actuator(command.value)
 
 
 if __name__ == "__main__":
@@ -53,12 +66,25 @@ if __name__ == "__main__":
 
     TEST_SLEEP_TIME = 2
 
+    fan_on = ACommand(ACommand.Type.FAN, "1")
+    fan_off = ACommand(ACommand.Type.FAN, "0")
+
+    led_pulse = ACommand(ACommand.Type.LIGHT_PULSE, "1")
+    led_off = ACommand(ACommand.Type.LIGHT_ON_OFF, "0")
+
     while True:
+        print("==================");
         print(device_manager.read_sensors())
+        device_manager.control_actuators([led_off, fan_on])
+        print("LED off")
+        print("Fan on")
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+        sleep(TEST_SLEEP_TIME)
 
-        device_manager.control_actuators([fake_command])
+        print("==================");
+        print(device_manager.read_sensors())
+        device_manager.control_actuators([led_pulse, fan_off])
+        print("LED pulse twice for 2s total")
+        print("Fan off")
 
         sleep(TEST_SLEEP_TIME)
