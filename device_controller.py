@@ -30,7 +30,7 @@ class DeviceController:
     def _initialize_actuators(self) -> list[IActuator]:
         return [
             FanActuator(22, ACommand.Type.FAN, "0"),
-            FanActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
+            LEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -66,16 +66,25 @@ if __name__ == "__main__":
 
     TEST_SLEEP_TIME = 2
 
+    fan_on = ACommand(ACommand.Type.FAN, "1")
+    fan_off = ACommand(ACommand.Type.FAN, "0")
+
+    led_pulse = ACommand(ACommand.Type.LIGHT_PULSE, "1")
+    led_off = ACommand(ACommand.Type.LIGHT_ON_OFF, "0")
+
     while True:
+        print("==================");
         print(device_manager.read_sensors())
+        device_manager.control_actuators([led_off, fan_on])
+        print("LED off")
+        print("Fan on")
 
-        fan_on = ACommand(ACommand.Type.FAN, "1")
-        fan_off = ACommand(ACommand.Type.FAN, "0")
+        sleep(TEST_SLEEP_TIME)
 
-        led_pulse = ACommand(ACommand.Type.LIGHT_PULSE, "1")
-        led_on = ACommand(ACommand.Type.LIGHT_ON_OFF, "1")
-        led_off = ACommand(ACommand.Type.LIGHT_ON_OFF, "0")
-
-        device_manager.control_actuators([fan_on])
+        print("==================");
+        print(device_manager.read_sensors())
+        device_manager.control_actuators([led_pulse, fan_off])
+        print("LED pulse twice for 2s total")
+        print("Fan off")
 
         sleep(TEST_SLEEP_TIME)

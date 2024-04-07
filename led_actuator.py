@@ -11,17 +11,18 @@ class LEDActuator(IActuator):
         # Validate the value is a float greater than 0.
         try:
             value = float(command.value)
-            if self.type == ACommand.Type.LIGHT_ON_OFF:
-                if not value in [0, 1]:
+            if command.target_type == ACommand.Type.LIGHT_ON_OFF:
+                if value not in [0, 1]:
                     return False
-            else:
+            elif command.target_type == ACommand.Type.LIGHT_PULSE:
                 if value < 0:
                     return False
+            else:
+                return False
         except TypeError:
             return False
 
-        # Validate the command type
-        return command.target_type == self.type
+        return True
 
     def control_actuator(self, value: str) -> bool:
         previous_duration = self._current_state
@@ -39,7 +40,7 @@ class LEDActuator(IActuator):
             self.led.pulse(
                 fade_in_time = self._current_state/2, 
                 fade_out_time = self._current_state/2, 
-                n = 2, background=False)
+                n = 2, background=True)
 
         return previous_duration != self._current_state
 
