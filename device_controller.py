@@ -1,9 +1,21 @@
 from sensors import ISensor, AReading
 from actuators import IActuator, ACommand
 from time import sleep
-from fan_control import FanActuator
-from led_pwm import LEDActuator
-from temp_humi_sensor import TempHumiditySensor
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv() 
+
+if os.getenv("ENVIRONMENT_MODE") == "prod":
+    from fan_control import FanActuator
+    from led_pwm import LEDActuator
+    from temp_humi_sensor import TempHumiditySensor
+else:
+    from mock_controllers.mock_temp_humi import (MockTempHumiditySensor as TempHumiditySensor)
+    from mock_controllers.mock_led import MockLEDActuator as LEDActuator
+    from mock_controllers.mock_fan import MockFanActuator as FanActuator
+
 
 class DeviceController:
 
@@ -17,7 +29,6 @@ class DeviceController:
         :return List[ISensor]: List of initialized sensors.
         """
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
             TempHumiditySensor(address=0x38, bus=4, model="AHT20", type=AReading)
         ]
 
@@ -27,7 +38,6 @@ class DeviceController:
         :return list[IActuator]: List of initialized actuators.
         """
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
             FanActuator(gpio=16, type=ACommand.Type.FAN),
             LEDActuator(18, ACommand.Type.LIGHT_PULSE, "2")
         ]
