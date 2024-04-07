@@ -1,10 +1,19 @@
 from gpiozero import PWMLED
 from signal import pause
+from actuators import IActuator, ACommand
 
-class LEDActuator:
-    def __init__(self, gpio:int) -> None:
+class LEDActuator(IActuator):
+    _current_state: str
+    type: ACommand.Type
+
+    def __init__(self, gpio: int, type: ACommand.Type, initial_state: str) -> None:
         self.led = PWMLED(gpio)
         self.duration = 0
+        self.type = type
+        self._current_state = initial_state
+
+    def validate_command(self, command: ACommand) -> bool:
+        return command.target_type == self.type
 
     def control_actuator(self, value:str) -> bool:
         previous_duration = self.duration
