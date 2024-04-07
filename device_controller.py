@@ -6,6 +6,7 @@ from led_pwm import LEDController
 from temp_humi_sensor import TempHumiController
 
 
+
 class DeviceController:
 
     def __init__(self) -> None:
@@ -20,7 +21,6 @@ class DeviceController:
 
         return [
             TempHumiController(4, "AHT20", type=AReading.Type.TEMPERATURE),
-            #TempHumiController(4, "AHT20", type=AReading.Type.HUMIDITY)
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -30,7 +30,7 @@ class DeviceController:
         """
 
         return [
-            #FanController(18, ACommand.Type.FAN, "ON"),
+            FanController(18, ACommand.Type.FAN, "ON"),
             LEDController(12, ACommand.Type.LIGHT_PULSE, "ON")
         ]
 
