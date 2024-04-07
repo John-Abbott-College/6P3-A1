@@ -4,3 +4,6 @@
 # Python related
 __pycache__
 .venv
+myenv
+grove.py
+requirements.txt
