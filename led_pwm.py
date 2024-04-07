@@ -11,21 +11,16 @@ class LEDActuator(IActuator):
         self.duration = 0
 
     def validate_command(self, command: ACommand) -> bool:
-        if command.target_type == ACommand.Type.LIGHT_ON_OFF or command.target_type == ACommand.Type.LIGHT_ON_OFF :
-            return command.value.upper() == "ON" or command.value.upper() == "OFF" 
+        if command.target_type == ACommand.Type.LIGHT_ON_OFF or command.target_type == ACommand.Type.LIGHT_ON_OFF or command.target_type == ACommand.Type.LIGHT_PULSE:
+            return command.value.upper() == "ON" or command.value.upper() == "OFF" or command.value.isnumeric()
         return False
 
     def control_actuator(self, value: str) -> bool:
         previous_state= self.led.is_active
 
         if self.type == ACommand.Type.LIGHT_PULSE:
-            print(value)
-            if value.isnumeric():
-                print("in")
-                self.led.pulse(float(value))
-            else:
-                print("out")
-                return False
+            self.led.pulse(float(value))
+            
         elif self.type == ACommand.Type.LIGHT_ON_OFF:
             if value.upper() == "ON":
                 self.led.on()

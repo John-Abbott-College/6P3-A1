@@ -4,3 +4,5 @@
 # Python related
 __pycache__
 .venv
+.env
+grove

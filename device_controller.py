@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
         commands = [
             ACommand(ACommand.Type.FAN, "OFF"),
-            ACommand(ACommand.Type.LIGHT_PULSE, "OFF"),
+            ACommand(ACommand.Type.LIGHT_PULSE, "2"),
         ]
 
         device_manager.control_actuators(commands)
