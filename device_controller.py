@@ -1,7 +1,11 @@
+#!/usr/bin/env python
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
-
+from fan_control import FanActuator
+from led_pwm import LEDActuator 
+from temp_humi_sensor import TempHumiditySensor
+ 
 
 class DeviceController:
 
@@ -16,7 +20,12 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TempHumiditySensor(
+                type = AReading.Type.TEMPERATURE
+            ),
+            TempHumiditySensor(
+                type = AReading.Type.HUMIDITY
+            )
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -26,7 +35,14 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            FanActuator(
+                gpio=16,
+                type=ACommand.Type.FAN
+            ),
+            LEDActuator(
+                gpio=12,
+                type=ACommand.Type.LIGHT_PULSE
+            )
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -34,7 +50,9 @@ class DeviceController:
 
         :return list[AReading]: a list containing all readings collected from sensors.
         """
-        readings: list[AReading] = []
+        readings: list[AReading] = [
+            sensor.read_sensor() for sensor in self._sensors 
+        ]
 
         return readings
 
@@ -43,6 +61,22 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+                if  command.target_type == ACommand.Type.FAN:
+                    if not self._actuators[0].validate_command(command):
+                        self._actuators[0].control_actuator(command.value)
+                    else:
+                        print("invalid command")
+                elif command.target_type == ACommand.Type.LIGHT_PULSE:
+                    if not self._actuators[1].validate_command(command):
+                        self._actuators[1].control_actuator(command.value)
+                        print("LED Pulsed for "+str(command.value)+" seconds")
+                    else:
+                        print("invalid command")
+
+            
+
+
 
 
 if __name__ == "__main__":
@@ -54,11 +88,19 @@ if __name__ == "__main__":
     TEST_SLEEP_TIME = 2
 
     while True:
-        print(device_manager.read_sensors())
+        sensor_data = device_manager.read_sensors()
+        print("====================================")
+        print(str(sensor_data[0])+"\n"+str(sensor_data[1]))
+        print("====================================")
 
         fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+            ACommand.Type.FAN, 1)
+        fake_command2 = ACommand(
+            ACommand.Type.FAN, 0)
+        fake_command3 = ACommand(
+            ACommand.Type.LIGHT_PULSE, 1)
 
-        device_manager.control_actuators([fake_command])
-
+        device_manager.control_actuators([fake_command,fake_command3])
+        sleep(TEST_SLEEP_TIME)
+        device_manager.control_actuators([fake_command2])
         sleep(TEST_SLEEP_TIME)

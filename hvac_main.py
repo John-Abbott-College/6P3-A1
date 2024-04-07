@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from device_controller import DeviceController
 from connection_manager import ConnectionManager
 

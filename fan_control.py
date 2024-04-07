@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 from gpiozero import OutputDevice
 from time import sleep
 
@@ -5,13 +6,15 @@ from actuators import IActuator,ACommand
 
 class FanActuator(IActuator):
     def __init__(self, gpio: int,type: ACommand, initial_state: str = "0") -> None:
+        super(IActuator, self).__init__()
         self.gpio = gpio
         self.current_state = initial_state
         self.fan = OutputDevice(pin=gpio)
         self.type = type
 
     def validate_command(self,command:ACommand) -> bool:
-        pass
+        return command.value not in (0, 1)
+
 
 
     def control_actuator(self, value: str) -> bool:
