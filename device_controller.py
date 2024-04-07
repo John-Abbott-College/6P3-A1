@@ -5,7 +5,12 @@ from actuators import IActuator, ACommand
 from fan_actuator import FanActuator
 from led_actuator import LEDActuator
 from temperature_sensor import TemperatureSensor
-from humidity_sensor import HumiditiySensor
+from humidity_sensor import HumiditySensor
+
+from mock_actuators import MockFanActuator, MockLEDActuator
+from mock_sensors import MockHumiditySensor, MockTemperatureSensor
+
+from dotenv import dotenv_values
 
 class DeviceController:
 
@@ -18,20 +23,32 @@ class DeviceController:
     :return List[ISensor]: List of initialized sensors.
     """
     def _initialize_sensors(self) -> list[ISensor]:
-        return [
-            TemperatureSensor(4, "AHT20", AReading.Type.TEMPERATURE),
-            HumiditiySensor(4, "AHT20", AReading.Type.HUMIDITY),
-        ]
+        if dotenv_values()["ENVIRONMENT"] == "PRODUCTION":
+            return [
+                TemperatureSensor(4, "AHT20", AReading.Type.TEMPERATURE),
+                HumiditySensor(4, "AHT20", AReading.Type.HUMIDITY),
+            ]
+        else:
+            return [
+                MockTemperatureSensor(4, "AHT20", AReading.Type.TEMPERATURE),
+                MockHumiditySensor(4, "AHT20", AReading.Type.HUMIDITY),
+            ]
 
     """Initializes all actuators and returns them as a list. Intended to be used in class constructor
 
     :return list[IActuator]: List of initialized actuators.
     """
     def _initialize_actuators(self) -> list[IActuator]:
-        return [
-            FanActuator(22, ACommand.Type.FAN, "0"),
-            LEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
-        ]
+        if dotenv_values()["ENVIRONMENT"] == "PRODUCTION":
+            return [
+                FanActuator(22, ACommand.Type.FAN, "0"),
+                LEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
+            ]
+        else:
+            return [
+                MockFanActuator(22, ACommand.Type.FAN, "0"),
+                MockLEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
+            ]
 
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors. 
