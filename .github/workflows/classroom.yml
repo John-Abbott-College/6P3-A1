@@ -16,12 +16,10 @@ jobs:
       uses: actions/checkout@v4
     - name: Python Unit Tests
       id: python-unit-tests
-      uses: education/autograding-command-grader@v1
+      uses: education/autograding-python-grader@v1
       with:
-        test-name: Python Unit Tests
-        setup-command: sudo -H pip3 install pytest
-        command: pytest
         timeout: 10
+        setup-command: sudo -H pip3 install pytest
     - name: Autograding Reporter
       uses: education/autograding-grading-reporter@v1
       env:
