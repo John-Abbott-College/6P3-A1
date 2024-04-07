@@ -9,15 +9,17 @@ class TempHumiditySensor(ISensor):
 
     #gpio replaces bus num
     def __init__(self, gpio: int,  model: str, type: AReading.Type):
-        self.sensor = GroveTemperatureHumidityAHT20(hex=0x38, bus=4)
+        address:hex=0x38
+        self.sensor = GroveTemperatureHumidityAHT20(address = address, bus=4)
         self._sensor_model = model
         self.reading_type = type
 
     def read_sensor(self) -> list[AReading]:
         temperature, humidity = self.sensor.read()
-        return list(
+        return list([
             AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temperature),
             AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, humidity)
+        ]
         )
     
 

@@ -1,7 +1,8 @@
+#!/usr/bin/python3
+
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
-
 from temp_humi_sensor import TempHumiditySensor
 from fan_control import FanActuator
 from led_pwm import LEDActuator
@@ -67,9 +68,11 @@ if __name__ == "__main__":
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+        fake_command = [
+            ACommand(ACommand.Type.FAN, "1"),
+            ACommand(ACommand.Type.LIGHT_PULSE, "1")
+        ]
 
-        device_manager.control_actuators([fake_command])
+        device_manager.control_actuators(fake_command)
 
         sleep(TEST_SLEEP_TIME)
