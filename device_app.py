@@ -32,6 +32,10 @@ def sensor_reading_updates(n):
 
 #I got the idea to stack the buttons vertically using flex from here:
 # https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
+#I got the idea to style the buttons from here:
+#https://dash.plotly.com/tutorial#html-and-css
+#https://blog.finxter.com/plotly-dash-button-component/
+
 app.layout = html.Div([
     html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
     html.Hr(),
@@ -70,7 +74,7 @@ app.layout = html.Div([
 #https://dash.plotly.com/dash-html-components/button#determining-which-button-changed-with-dash.ctx
 def light_button_controller(on):
     if 'light-button' == ctx.triggered_id: 
-        device_controller.control_actuators([ACommand(ACommand.Type.LIGHT_PULSE, "3")])
+        device_controller.control_actuators([ACommand(ACommand.Type.LIGHT_PULSE, "2")])
         return 1
 
 
@@ -145,6 +149,8 @@ def sensor_graph_readings(n):
     figure_made.update_layout(layout)
     
     return figure_made
+
+
 
 # Run the app
 if __name__ == '__main__':
