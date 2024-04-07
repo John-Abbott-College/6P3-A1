@@ -1,13 +1,13 @@
 from gpiozero import PWMLED
 from actuators import IActuator, ACommand
 
-class LEDController(IActuator):
+class MockLEDController(IActuator):
 
     def __init__(self, gpio: int, type: ACommand.Type, initial_state: str):
         self.gpio = gpio
         self.type = type
         self.current_state = initial_state
-        self.led = PWMLED(gpio)
+        self.led = self.fan = f"Mock fan using pin {gpio}"
         self.control_actuator(initial_state)
 
     def control_actuator(self, value):
@@ -26,23 +26,23 @@ class LEDController(IActuator):
 
     def pulse_mode(self, value):
         if value.upper() == "ON":
-            self.led.pulse()
+            self.current_state = value.upper()
         elif value.upper() == "OFF":
-            self.led.off()
+            self.current_state = value.upper()
         else:
             print(f"The command {value} is an invalid command. Please provide 'ON' or 'OFF'")
 
     def on_off_mode(self, value):
         if value.upper() == "ON":
-            self.led.on()
+            self.current_state = value.upper()
         elif value.upper() == "OFF":
-            self.led.off()
+            self.current_state = value.upper()
         else:
             print(f"The command {value} is an invalid command. Please provide 'ON' or 'OFF'")
 
 
 if __name__ == "__main__":
-    led = LEDController(18, ACommand.Type.LIGHT_ON_OFF, "ON")
+    led = MockLEDController(18, ACommand.Type.LIGHT_ON_OFF, "ON")
     while True:
         print(f"LED State {led.current_state}")
 

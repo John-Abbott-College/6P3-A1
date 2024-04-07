@@ -4,8 +4,22 @@ from actuators import IActuator, ACommand
 from fan_control import FanController
 from led_pwm import LEDController
 from temp_humi_sensor import TempHumiController
+from mock_fan_control import MockFanController
+from mock_led_control import MockLEDController
+from mock_temp_humi_control import MockTempHumiController
+import os
+from dotenv import load_dotenv
 
-
+load_dotenv()
+env = os.environ["MODE"]
+if env == "prod":
+    humidityTemperatureSensor = TempHumiController(4, "AHT20", AReading.Type.TEMPERATURE)
+    fanController = FanController(16, ACommand.Type.FAN, "ON")
+    ledController = LEDController(18, ACommand.Type.LIGHT_PULSE, "ON")
+else:
+    humidityTemperatureSensor = MockTempHumiController(4, "AHT20", AReading.Type.TEMPERATURE)
+    fanController = MockFanController(16, ACommand.Type.FAN, "ON")
+    ledController = MockLEDController(18, ACommand.Type.LIGHT_PULSE, "ON")
 
 class DeviceController:
 
@@ -20,7 +34,7 @@ class DeviceController:
         """
 
         return [
-            TempHumiController(4, "AHT20", type=AReading.Type.TEMPERATURE),
+            humidityTemperatureSensor
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -30,8 +44,8 @@ class DeviceController:
         """
 
         return [
-            FanController(18, ACommand.Type.FAN, "ON"),
-            LEDController(12, ACommand.Type.LIGHT_PULSE, "ON")
+            fanController,
+            ledController
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -71,7 +85,7 @@ if __name__ == "__main__":
         print(device_manager.read_sensors())
 
         commands = [
-            ACommand(ACommand.Type.FAN, "ON"),
+            #ACommand(ACommand.Type.FAN, "ON"),
             ACommand(ACommand.Type.LIGHT_ON_OFF, "ON")
         ]
 
@@ -79,6 +93,6 @@ if __name__ == "__main__":
         sleep(TEST_SLEEP_TIME)
 
         commands = [
-            ACommand(ACommand.Type.FAN, "OFF"),
+            #ACommand(ACommand.Type.FAN, "OFF"),
             ACommand(ACommand.Type.LIGHT_ON_OFF, "OFF")
         ]
