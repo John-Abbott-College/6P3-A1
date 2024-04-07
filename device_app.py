@@ -19,6 +19,16 @@ time_readings = []
 # Initialize the app
 app = dash.Dash(__name__)
 
+#I put the readings in another method to separate the concerns from displaying the data
+#I had to put it here after experimenting where it could go. 
+#It wouldn't work it I put it above the actual method I was calling it from
+def sensor_reading_updates(n):
+    read_time = time.strftime('%H:%M:%S')
+    temperature, humidity = device_controller.read_sensors()
+    humidity_readings.append(humidity)    
+    temperature_readings.append(temperature)   
+    time_readings.append(read_time)
+
 
 #I got the idea to stack the buttons vertically using flex from here:
 # https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
@@ -91,18 +101,17 @@ def fan_button_controller(on, off):
 )
 
 
+
 #I got the help for this part from these sources:
 #https://dash.plotly.com/tutorial
 #https://www.youtube.com/watch?v=g3VQAVz_0qo
 #https://plotly.com/python/reference/scatter/
 def sensor_graph_readings(n):
 
+    sensor_reading_updates(n)
+
     figure_made = graphing.Figure()
-    read_time = time.strftime('%H:%M:%S')
-    temperature, humidity = device_controller.read_sensors()
-    humidity_readings.append(humidity)    
-    temperature_readings.append(temperature)   
-    time_readings.append(read_time)
+   
 
     #Updating the humidity part of the graph here    
     figure_made.add_trace(graphing.Scatter(
@@ -136,8 +145,6 @@ def sensor_graph_readings(n):
     figure_made.update_layout(layout)
     
     return figure_made
-
-
 
 # Run the app
 if __name__ == '__main__':
