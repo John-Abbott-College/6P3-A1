@@ -8,6 +8,7 @@ from temp_humi_sensor import TempHumiditySensor
 class DeviceController:
 
     def __init__(self) -> None:
+        self._env: str
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
@@ -19,7 +20,8 @@ class DeviceController:
 
         return [
             # Instantiate each sensor inside this list, separate items by comma.
-            TempHumiditySensor(gpio=26, model="AHT20", type=AReading.Type.TEMPERATURE)
+            TempHumiditySensor(gpio=26, model="AHT20", type=AReading.Type.TEMPERATURE),
+            TempHumiditySensor(gpio=26, model="AHT20", type=AReading.Type.HUMIDITY)
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -45,7 +47,7 @@ class DeviceController:
 
     def control_actuators(self, commands: list[ACommand]) -> None:
         """Controls actuators according to a list of commands. Each command is applied to it's respective actuator.
-
+        
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
 
