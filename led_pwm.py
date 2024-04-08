@@ -1,10 +1,13 @@
+#!/usr/bin/env python
 from gpiozero import PWMLED
 from signal import pause
+from actuators import IActuator,ACommand
 
-class LEDActuator:
+class LEDActuator(IActuator):
     def __init__(self, gpio:int) -> None:
         self.led = PWMLED(gpio)
         self.duration = 0
+        self.type = ACommand.Type.LIGHT_PULSE
 
     def control_actuator(self, value:str) -> bool:
         previous_duration = self.duration
@@ -20,6 +23,9 @@ class LEDActuator:
             n = 2, background=False)
 
         return previous_duration != self.duration
+    
+    def validate_command(self, command: ACommand) -> bool:
+        return command.target_type == ACommand.Type.LIGHT_PULSE
 
 
 def main():
