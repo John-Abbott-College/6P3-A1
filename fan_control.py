@@ -1,31 +1,67 @@
 from gpiozero import OutputDevice
 from time import sleep
+from actuators import IActuator, ACommand
 
 
-class FanActuator(ISensor, IActuator):
-    def __init__(self, gpio: int, initial_state: str = "0") -> None:
-        self.gpio = gpio
-        self.current_state = initial_state
-        self.fan = OutputDevice(pin=gpio)
+class FanActuator(IActuator):
+    def __init__(self, gpio: int, type: ACommand.Type, initial_state: str = "OFF") -> None:
+        """Constructor for Actuator class. Must define interface's class properties
+
+        :param ACommand.Type type: Type of command the actuator can respond to.
+        :param str initial_state: initializes 'current_state' property of a new actuator.
+        If not passed, actuator implementation is responsible for setting a default value.
+        """
+        initial_value = False
+        if (initial_state == "ON"):
+            initial_value = True
+        
+        self.fan = OutputDevice(pin=gpio, initial_value=initial_value)
+
+        # can be ON or OFF
+        self._current_state = initial_state
+        self.type = type
+
+
+    def validate_command(self, command: ACommand) -> bool:
+        """Validates that a command can be used with the specific actuator.
+
+        :param ACommand command: the command to be validated.
+        :return bool: True if command can be consumed by the actuator.
+        """
+        if(command.target_type == self.type):
+            return True
+        return False
 
 
     def control_actuator(self, value: str) -> bool:
-        previous_state = self.current_state
-        try:
-            self.fan.value = int(value)
-        except (ValueError, TypeError):
-            print(f"Invalid argument {value}, must be 0 or 1")
-        self.current_state = str(self.fan.value)
-        return previous_state != self.current_state
+        """Sets the actuator to the value passed as argument.
+
+        :param str value: Value used to set the new state of the actuator. Value is parsed inside concrete classes.
+        :return bool: True if the state of the actuator changed, false otherwise.
+        """
+        if(value == "ON"):
+            self.fan.on()
+            previous_state = self._current_state
+            self._current_state = "ON"
+            return previous_state != self._current_state
+        elif (value == "OFF"):
+            self.fan.off()
+            previous_state = self._current_state
+            self._current_state = "OFF"
+            return previous_state != self._current_state
+        else:
+            print(f"Invalid argument {value}, must be ON or OFF")
+            return False
 
 
 def main():
-    fan_actuator = FanActuator(gpio=16)
-    fan_actuator.control_actuator("1")
-    print(f"Fan state: {fan_actuator.current_state}")
+    fan_actuator = FanActuator(16, ACommand.Type.FAN, "OFF")
     sleep(2)
-    fan_actuator.control_actuator("0")
-    print(f"Fan state: {fan_actuator.current_state}")
+    fan_actuator.control_actuator("ON")
+    print(f"Fan state: {fan_actuator._current_state}")
+    sleep(2)
+    fan_actuator.control_actuator("OFF")
+    print(f"Fan state: {fan_actuator._current_state}")
     sleep(2)
 
 
