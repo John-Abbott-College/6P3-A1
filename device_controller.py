@@ -70,7 +70,7 @@ if __name__ == "__main__":
         print(device_manager.read_sensors())
 
         fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+            ACommand.Type.FAN, "1")
 
         device_manager.control_actuators([fake_command])
 
