@@ -51,6 +51,14 @@ class DeviceController:
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
 
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.validate_command(command):
+                    actuator.control_actuator(command.value)
+                break
+
+
+
 
 if __name__ == "__main__":
     """This script is intented to be used as a module, however, code below can be used for testing.
@@ -64,7 +72,7 @@ if __name__ == "__main__":
         print(device_manager.read_sensors())
 
         fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+            ACommand.Type.FAN, 1)
 
         device_manager.control_actuators([fake_command])
 
