@@ -1,6 +1,10 @@
+#!/usr/bin/env python
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+from led_pwm import LEDActuator
+from temp_humi_sensor import TempHumiditySensor
+from fan_control import FanActuator
 
 
 class DeviceController:
@@ -10,22 +14,24 @@ class DeviceController:
         self._actuators: list[IActuator] = self._initialize_actuators()
 
     def _initialize_sensors(self) -> list[ISensor]:
-        """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
-
-        :return List[ISensor]: List of initialized sensors.
-        """
+        # Initializes all sensors and returns them as a list. Intended to be used in class constructor.
+        #:return List[ISensor]: List of initialized sensors.
 
         return [
+            TempHumiditySensor()
             # Instantiate each sensor inside this list, separate items by comma.
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
-        """Initializes all actuators and returns them as a list. Intended to be used in class constructor
+        #Initializes all actuators and returns them as a list. Intended to be used in class constructor
+         #:return List[ISensor]: List of initialized sensors.
+        
 
-        :return list[IActuator]: List of initialized actuators.
-        """
+        
 
         return [
+            LEDActuator(12),
+            FanActuator(16)
             # Instantiate each actuator inside this list, separate items by comma.
         ]
 
@@ -36,13 +42,20 @@ class DeviceController:
         """
         readings: list[AReading] = []
 
+        for sensor in self._sensors:
+            for reading in sensor.read_sensor():
+                readings.append(reading)
+
         return readings
 
     def control_actuators(self, commands: list[ACommand]) -> None:
         """Controls actuators according to a list of commands. Each command is applied to it's respective actuator.
-
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for actuator in self._actuators:
+            for command in commands:
+                if actuator.validate_command(command=command):
+                    actuator.control_actuator('2')
 
 
 if __name__ == "__main__":
