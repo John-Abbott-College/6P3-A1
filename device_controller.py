@@ -42,7 +42,8 @@ class DeviceController:
         :return list[AReading]: a list containing all readings collected from sensors.
         """
         readings: list[AReading] = []
-
+        for sensor in self._sensors:
+            readings.extend(sensor.read_sensor())
         return readings
 
     def control_actuators(self, commands: list[ACommand]) -> None:
@@ -69,11 +70,26 @@ if __name__ == "__main__":
     TEST_SLEEP_TIME = 2
 
     while True:
-        print(device_manager.read_sensors())
+        #sensor doesn't work
+        #print(device_manager.read_sensors())
 
         fake_command = ACommand(
             ACommand.Type.FAN, 1)
 
+        device_manager.control_actuators([fake_command])
+
+        sleep(2)
+
+        fake_command = ACommand(
+            ACommand.Type.FAN, 0)
+
+        device_manager.control_actuators([fake_command])
+
+        sleep(2)
+
+        fake_command = ACommand(
+            ACommand.Type.LIGHT_PULSE, 1)
+        
         device_manager.control_actuators([fake_command])
 
         sleep(TEST_SLEEP_TIME)
