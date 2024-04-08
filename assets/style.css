@@ -1,0 +1,29 @@
+.centered-heading {
+    text-align: center;
+    font-weight: bold;
+    font-size: 50px;
+    text-decoration: underline;
+}
+
+.centered-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px; 
+}
+
+.status-label {
+    text-align: center;
+    display: inline-block; 
+    margin: 0 30px; 
+    width: 120px;
+    font-size: 20px;
+}
+
+.rounded-button {
+    border-radius: 10px;
+    background-color: yellow;
+    border-color: yellow;
+    padding: 15px 30px; 
+    font-size: 20px;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
