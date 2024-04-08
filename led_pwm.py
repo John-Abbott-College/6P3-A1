@@ -5,17 +5,17 @@ from actuators import ACommand, IActuator
 
 
 class LEDActuator(IActuator):
-    def __init__(self, gpio: int, type: ACommand.Type, initial_state: str) -> None:
+    def __init__(self, gpio: int, type: ACommand.Type, initial_state: str = "OFF") -> None:
         """Constructor for Actuator class. Must define interface's class properties
 
         :param ACommand.Type type: Type of command the actuator can respond to.
         :param str initial_state: initializes 'current_state' property of a new actuator.
         If not passed, actuator implementation is responsible for setting a default value.
         """
-        self.led = PWMLED(pin = gpio)
-
-        if (initial_state == None):
-            initial_state = "OFF"
+        initial_value = False
+        if(initial_state == "ON"):
+            initial_value = True
+        self.led = PWMLED(pin = gpio, initial_value = initial_value)
 
         # can be ON, OFF, or PULSE
         self._current_state = initial_state
@@ -69,10 +69,10 @@ class LEDActuator(IActuator):
 
 def main():
     
-    led = LEDActuator(12, ACommand.Type.LIGHT_PULSE, "OFF")
+    led = LEDActuator(12, ACommand.Type.LIGHT_PULSE, "ON")
     duration = 2
     print(f"LED pulsing twice for {duration} seconds...")
-    led.control_actuator(duration)
+    #led.control_actuator(duration)
     print(f"Finished. Press CTRL-C to exit.")
     pause()
 
