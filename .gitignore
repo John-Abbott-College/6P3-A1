@@ -4,5 +4,7 @@
 # Python related
 __pycache__
 .venv
+env/
+.env
 
 asgn1/

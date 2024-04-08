@@ -2,12 +2,12 @@
 from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
 from time import sleep
 from sensors import ISensor,AReading
+import random
 
-class TempHumiditySensor(ISensor): 
+class TempHumiditySensorDev(ISensor): 
     #add sub item for humitdy and one for temp so read sensor returns the correct item based on input
-    def __init__(self, address:hex=0x38, bus:int=4,type = AReading) -> None:
+    def __init__(self,type = AReading) -> None:
         super(ISensor, self).__init__()
-        self.sensor = GroveTemperatureHumidityAHT20(address = address, bus = bus)
         self.type = type
         
         
@@ -22,19 +22,19 @@ class TempHumiditySensor(ISensor):
         :return list[AReading]: List of readinds measured by the sensor. Most sensors return a list with a single item.
         """
         if self.type == AReading.Type.TEMPERATURE:
-            temp, humidity = self._read_sensor()
+            
             return[
-            AReading(value=round(temp,2),type=AReading.Type.TEMPERATURE,unit=AReading.Unit.CELCIUS)
+            AReading(value=round(random.uniform(20,40), 2),type=AReading.Type.TEMPERATURE,unit=AReading.Unit.CELCIUS)
             ]
         else:
-            temp, humi = self._read_sensor()
+            
             return[
-                 AReading(value=round(humi,2),type=AReading.Type.HUMIDITY,unit=AReading.Unit.HUMIDITY)
+                 AReading(value=round(random.uniform(10,90), 2),type=AReading.Type.HUMIDITY,unit=AReading.Unit.HUMIDITY)
             ]
     
 
 def main():
-    sensor = TempHumiditySensor(type = AReading.Type.TEMPERATURE)
+    sensor = TempHumiditySensorDev(type = AReading.Type.TEMPERATURE)
     while True:
         temperature, humidity = sensor._read_sensor()
         #instead of the above temp, _ = self.read_sensor() will only keep temp and trash humi, opposite works as well.

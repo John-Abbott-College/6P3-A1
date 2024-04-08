@@ -5,13 +5,30 @@ from actuators import IActuator, ACommand
 from fan_control import FanActuator
 from led_pwm import LEDActuator 
 from temp_humi_sensor import TempHumiditySensor
- 
+from temp_humi_sensor_dev import TempHumiditySensorDev
+from fan_control_dev import FanActuatorDev
+from led_pwm_dev import LEDActuatorDev
+from dotenv import load_dotenv
+from dotenv import dotenv_values
+import os
 
 class DeviceController:
 
     def __init__(self) -> None:
-        self._sensors: list[ISensor] = self._initialize_sensors()
-        self._actuators: list[IActuator] = self._initialize_actuators()
+        load_dotenv()
+        config = dotenv_values(".env")
+        print("Dev mode is " +config["DEV"])
+        print("Prod mode is " +config["PROD"])
+
+        
+        if config["PROD"] == "True":
+            self.dev = False
+            self._sensors: list[ISensor] = self._initialize_sensors()
+            self._actuators: list[IActuator] = self._initialize_actuators()
+        elif config["DEV"] == "True":
+            self.dev = True
+            self._sensors_dev: list[ISensor] = self._initialize_sensors_dev()
+            self._actuators_dev: list[IActuator] = self._initialize_actuators_dev()
 
     def _initialize_sensors(self) -> list[ISensor]:
         """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
@@ -24,6 +41,16 @@ class DeviceController:
                 type = AReading.Type.TEMPERATURE
             ),
             TempHumiditySensor(
+                type = AReading.Type.HUMIDITY
+            )
+        ]
+    
+    def _initialize_sensors_dev(self) -> list[ISensor]:
+        return [
+            TempHumiditySensorDev(
+                type = AReading.Type.TEMPERATURE
+            ),
+            TempHumiditySensorDev(
                 type = AReading.Type.HUMIDITY
             )
         ]
@@ -44,24 +71,48 @@ class DeviceController:
                 type=ACommand.Type.LIGHT_PULSE
             )
         ]
+    
+    def _initialize_actuators_dev(self) -> list[IActuator]:
+        return [
+            FanActuatorDev(
+                type=ACommand.Type.FAN
+            ),
+            LEDActuatorDev(
+                type=ACommand.Type.LIGHT_PULSE
+            )
+        ]
 
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors. 
 
         :return list[AReading]: a list containing all readings collected from sensors.
         """
-        readings: list[AReading] = [
+
+        if not self.dev:
+
+            readings: list[AReading] = [
             sensor.read_sensor() for sensor in self._sensors 
-        ]
+            ]
+        else:
+            readings: list[AReading] = [
+            sensor.read_sensor() for sensor in self._sensors_dev 
+            ]
 
         return readings
+    
+    
 
     def control_actuators(self, commands: list[ACommand]) -> None:
         """Controls actuators according to a list of commands. Each command is applied to it's respective actuator.
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
-        for command in commands:
+        count = 1
+        print("************************************")
+        if not self.dev:
+            for command in commands:
+                print("Command #"+str(count))
+                count = count+1
                 if  command.target_type == ACommand.Type.FAN:
                     if not self._actuators[0].validate_command(command):
                         self._actuators[0].control_actuator(command.value)
@@ -73,10 +124,27 @@ class DeviceController:
                         print("LED Pulsed for "+str(command.value)+" seconds")
                     else:
                         print("invalid command")
-
+                
+                print("************************************")
             
 
+        else:
+            for command in commands:
+                print("Command #"+str(count))
+                count = count+1
+                if  command.target_type == ACommand.Type.FAN:
+                    if not self._actuators_dev[0].validate_command(command):
+                        self._actuators_dev[0].control_actuator(command.value)
+                    else:
+                        print("invalid command")
+                elif command.target_type == ACommand.Type.LIGHT_PULSE:
+                    if not self._actuators_dev[1].validate_command(command):
+                        self._actuators_dev[1].control_actuator(command.value)
+                        print("LED Pulsed for "+str(command.value)+" seconds")
+                    else:
+                        print("invalid command")
 
+                print("************************************")
 
 
 if __name__ == "__main__":
