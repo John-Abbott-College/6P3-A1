@@ -1,6 +1,9 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+from temp_humi_sensor import TempHumiditySensor
+from fan_control import FanActuator
+from led_pwm import LEDActuator
 
 
 class DeviceController:
@@ -16,7 +19,7 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TempHumiditySensor(4, "AHT20", AReading.Type.TEMPERATURE)
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -26,7 +29,8 @@ class DeviceController:
         """
 
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            FanActuator(16, ACommand.Type.FAN, "OFF"),
+            LEDActuator(12, ACommand.Type.LIGHT_ON_OFF, "OFF")
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -35,6 +39,9 @@ class DeviceController:
         :return list[AReading]: a list containing all readings collected from sensors.
         """
         readings: list[AReading] = []
+        for sensor in self._sensors:
+            sensor_readings = sensor.read_sensor()
+            readings.extend(sensor_readings)
 
         return readings
 
@@ -43,22 +50,36 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+            index = -1
+            for actuator in self._actuators:
+                if (actuator.type == command.target_type):
+                    index = self._actuators.index(actuator)
+
+            if(index == -1):
+                print(f"Can't execute command '{command.value}' for {command.target_type} because the actuator doesn't exist.")
+            else:
+                if(self._actuators[index].validate_command(command)):
+                    self._actuators[index].control_actuator(command.value)
 
 
 if __name__ == "__main__":
     """This script is intented to be used as a module, however, code below can be used for testing.
     """
-
     device_manager = DeviceController()
 
     TEST_SLEEP_TIME = 2
 
+    value = "ON"
+
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+        fake_command = ACommand(ACommand.Type.FAN, value)
+        fake_command2 = ACommand(ACommand.Type.LIGHT_ON_OFF, value)
 
-        device_manager.control_actuators([fake_command])
+        device_manager.control_actuators([fake_command, fake_command2])
 
         sleep(TEST_SLEEP_TIME)
+
+        value = "ON" if value != "ON" else "OFF"
