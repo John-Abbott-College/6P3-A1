@@ -24,6 +24,7 @@ class FanActuator(IActuator):
         except (ValueError, TypeError):
             print(f"Invalid argument {value}, must be 0 or 1")
         self.current_state = str(self.fan.value)
+        print(f"Fan state: {self.current_state}")
         return previous_state != self.current_state
 
 
