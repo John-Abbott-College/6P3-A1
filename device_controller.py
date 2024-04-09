@@ -5,6 +5,7 @@ from temp_humi_sensor import TempHumiditySensor
 from fan_control import FanActuator
 from led_pwm import LEDActuator
 from dotenv import dotenv_values
+from mock_fan import MockFanActuator
 
 
 class DeviceController:
@@ -42,7 +43,7 @@ class DeviceController:
         else:
             return [
                 #mock light actuator
-                #mock fan actuator
+                MockFanActuator(16, ACommand.Type.FAN, "OFF")
             ]
 
     def read_sensors(self) -> list[AReading]:
