@@ -7,6 +7,7 @@ from led_pwm import LEDActuator
 from dotenv import dotenv_values
 from mock_fan import MockFanActuator
 from mock_light import MockLEDActuator
+from mock_temp_humi import MockTempHumiditySensor
 
 
 class DeviceController:
@@ -27,7 +28,7 @@ class DeviceController:
             ]
         else:
             return [
-                # mock temp humi sensor
+                MockTempHumiditySensor(4, "AHT20", AReading.Type.TEMPERATURE)
             ]
         
 

@@ -1,9 +1,10 @@
-from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
-from sensors import ISensor, AReading
+from sensors import AReading
 from time import sleep
+from temp_humi_sensor import TempHumiditySensor
+from random import randrange
 
 
-class TempHumiditySensor(ISensor): 
+class MockTempHumiditySensor(TempHumiditySensor):
     def __init__(self, gpio: int,  model: str, type: AReading.Type):
         """Constructor for Sensor  class. May be called from childclass.
 
@@ -13,20 +14,18 @@ class TempHumiditySensor(ISensor):
         """
         self._sensor_model = model
         self.reading_type = type
-        self.sensor = GroveTemperatureHumidityAHT20(bus = gpio)
 
     def read_sensor(self) -> list[AReading]:
         """Reads the sensor to get the temperature and humidity.
         """
-        temperature, humidity = self.sensor.read() 
         return [
-            AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temperature),
-            AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, humidity)
+            AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, randrange(-50, 100)),
+            AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, randrange(-50, 100))
         ]
     
 
 def main():
-    sensor = TempHumiditySensor(4, "AHT20", AReading.Type.TEMPERATURE)
+    sensor = MockTempHumiditySensor(4, "AHT20", AReading.Type.TEMPERATURE)
     while True:
         temperature, humidity = sensor.read_sensor()
         print('Temperature in Celsius is {:.2f} C'.format(temperature.value))
