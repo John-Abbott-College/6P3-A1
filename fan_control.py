@@ -1,6 +1,6 @@
 from gpiozero import OutputDevice
 from time import sleep
-
+from actuators import IActuator, ACommand
 
 class FanActuator(IActuator):
     def __init__(self, gpio: int, type: ACommand.Type, initial_state: str = "0") -> None:
@@ -9,21 +9,24 @@ class FanActuator(IActuator):
         self.current_state = initial_state
         self.fan = OutputDevice(pin=gpio)
 
-        self._sate_values_dict:dict[str, list[str]] = {
+        self._state_values_dict:dict[str, list[str]] = {
             "on": ["true","1","high","on"],
             "off": ["false","0","low","off"]
         }
 
     def validate_command(self, command: ACommand) -> bool:
-        return command.target_type == self.type
+        return command.target_type == self.type 
 
 
     def control_actuator(self, value: str) -> bool:
         previous_state = self.current_state
-        if value.lower() in self._state_values_dict["on"]:
-            self.fan.on()
-        elif value.lower() in self._state_values_dict["off"]:
-            self.fan.off()
+        if self.validate_command(ACommand(ACommand.Type.FAN,value)):
+
+            if value.lower() in self._state_values_dict["on"]:
+                self.fan.on()
+            elif value.lower() in self._state_values_dict["off"]:
+                self.fan.off()
+
         else:
             print(f"Invalid argument {value}, must be one of {', '.join(self._state_values_dict['on'])} or {', '.join(self._state_values_dict['off'])}")
             return False
