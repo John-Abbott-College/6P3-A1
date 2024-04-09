@@ -4,11 +4,13 @@ from actuators import IActuator, ACommand
 from temp_humi_sensor import TempHumiditySensor
 from fan_control import FanActuator
 from led_pwm import LEDActuator
+from dotenv import dotenv_values
 
 
 class DeviceController:
 
     def __init__(self) -> None:
+        self._environment = dotenv_values(".env")
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
@@ -17,21 +19,31 @@ class DeviceController:
 
         :return List[ISensor]: List of initialized sensors.
         """
-
-        return [
-            TempHumiditySensor(4, "AHT20", AReading.Type.TEMPERATURE)
-        ]
+        if(self._environment["PRODUCTION"] == "TRUE"):
+            return [
+                TempHumiditySensor(4, "AHT20", AReading.Type.TEMPERATURE)
+            ]
+        else:
+            return [
+                # mock temp humi sensor
+            ]
+        
 
     def _initialize_actuators(self) -> list[IActuator]:
         """Initializes all actuators and returns them as a list. Intended to be used in class constructor
 
         :return list[IActuator]: List of initialized actuators.
         """
-
-        return [
-            FanActuator(16, ACommand.Type.FAN, "OFF"),
-            LEDActuator(12, ACommand.Type.LIGHT_ON_OFF, "OFF")
-        ]
+        if(self._environment["PRODUCTION"] == "TRUE"):
+            return [
+                FanActuator(16, ACommand.Type.FAN, "OFF"),
+                LEDActuator(12, ACommand.Type.LIGHT_ON_OFF, "OFF")
+            ]
+        else:
+            return [
+                #mock light actuator
+                #mock fan actuator
+            ]
 
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors. 
