@@ -10,15 +10,13 @@ import time
 
 
 #Had to make the arrays to read the outputs of the sensor
+time_readings = []
 temperature_readings = []
 humidity_readings = []
-time_readings = []
+
 
 #Initialize the device controller her to get the methods
 device_controller = DeviceController()
-
-# Initialize the app
-app = dash.Dash(__name__)
 
 #I put the readings in another method to separate the concerns from displaying the data
 #I had to put it here after experimenting where it could go. 
@@ -30,6 +28,11 @@ def sensor_reading_updates(n):
     temperature_readings.append(temperature)   
     time_readings.append(read_time)
 
+# Initialize the app
+app = dash.Dash(__name__)
+
+
+
 
 #I got the idea to stack the buttons vertically using flex from here:
 # https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
@@ -38,7 +41,8 @@ def sensor_reading_updates(n):
 #https://blog.finxter.com/plotly-dash-button-component/
 
 app.layout = html.Div([
-    html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+    html.H3(children='Control the Raspberry Pi with Buttons', 
+            style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
     html.Hr(),
     html.Div([
         html.Button('Turn Light On', id='light-button', style={'background-color': '#DB1F48', 
@@ -54,7 +58,8 @@ app.layout = html.Div([
         'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
 
     html.Div([
-      html.H3(children='Temperature and Humidity Graph', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+      html.H3(children='Temperature and Humidity Graph', 
+            style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
         dcc.Graph(id='live-temp-humid-graph'),
         dcc.Interval(
                 id='interval-readings',
