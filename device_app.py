@@ -8,13 +8,14 @@ from actuators import ACommand
 import plotly.graph_objs as graphing
 import time
 
-#Initialize the device controller her to get the methods
-device_controller = DeviceController()
 
 #Had to make the arrays to read the outputs of the sensor
 temperature_readings = []
 humidity_readings = []
 time_readings = []
+
+#Initialize the device controller her to get the methods
+device_controller = DeviceController()
 
 # Initialize the app
 app = dash.Dash(__name__)
