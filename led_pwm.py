@@ -12,7 +12,11 @@ class LEDActuator(IActuator):
         self.duration = 0
 
     def validate_command(self, command: ACommand) -> bool:
-        return command.target_type == self.type
+        try:
+            int(command.value)
+            return True
+        except:
+            return False
 
     def control_actuator(self, value: str) -> bool:
         previous_duration = self.duration
@@ -38,17 +42,3 @@ class LEDActuator(IActuator):
         return previous_duration != self.duration
 
 
-def main():
-    led = LEDActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE)
-    duration = 2
-    print(f"LED pulsing twice for {duration} seconds...")
-    led.control_actuator(duration)
-    print(f"Finished. Press CTRL-C to exit.")
-    pause()
-
-
-if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        pass

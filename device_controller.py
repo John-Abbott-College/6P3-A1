@@ -1,9 +1,20 @@
 from sensors import ISensor, AReading
 from actuators import IActuator, ACommand
-from temp_humi_sensor import TempHumiditySensor
-from fan_control import FanActuator
-from led_pwm import LEDActuator
 from time import sleep
+from dotenv import load_dotenv
+from os import getenv
+
+load_dotenv()
+
+
+env = getenv('ENV')
+
+if env == "Dev":
+    from SimulationClasses import DevSimulationTempHumSensor, DevFanActuation, DevLEDActuation
+else:
+    from fan_control import FanActuator
+    from led_pwm import LEDActuator
+    from temp_humi_sensor import TempHumiditySensor
 
 class Device_Controller:
 
