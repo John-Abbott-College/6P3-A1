@@ -1,7 +1,6 @@
-from gpiozero import PWMLED
 from signal import pause
 from time import sleep
-from actuators import ACommand, IActuator
+from actuators import ACommand
 from led_pwm import LEDActuator
 
 

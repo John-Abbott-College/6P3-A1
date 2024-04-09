@@ -1,6 +1,5 @@
-from gpiozero import OutputDevice
 from time import sleep
-from actuators import IActuator, ACommand
+from actuators import ACommand
 from fan_control import FanActuator
 
 class MockFanActuator(FanActuator):
