@@ -48,7 +48,7 @@ class MockFanActuator(FanActuator):
         
 
 def main():
-    fan_actuator = FanActuator(16, ACommand.Type.FAN, "OFF")
+    fan_actuator = MockFanActuator(16, ACommand.Type.FAN, "OFF")
     sleep(2)
     fan_actuator.control_actuator("ON")
     print(f"Fan state: {fan_actuator._current_state}")

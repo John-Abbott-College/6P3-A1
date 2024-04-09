@@ -2,9 +2,10 @@ from gpiozero import PWMLED
 from signal import pause
 from time import sleep
 from actuators import ACommand, IActuator
+from led_pwm import LEDActuator
 
 
-class LEDActuator(IActuator):
+class MockLEDActuator(LEDActuator):
     def __init__(self, gpio: int, type: ACommand.Type, initial_state: str = "OFF") -> None:
         """Constructor for Actuator class. Must define interface's class properties
 
@@ -12,12 +13,6 @@ class LEDActuator(IActuator):
         :param str initial_state: initializes 'current_state' property of a new actuator.
         If not passed, actuator implementation is responsible for setting a default value.
         """
-        initial_value = False
-        if(initial_state == "ON"):
-            initial_value = True
-        self.led = PWMLED(pin = gpio, initial_value = initial_value)
-
-        # can be ON, OFF, or PULSE
         self._current_state = initial_state
         self.type = type
         self.duration = 0
@@ -31,7 +26,7 @@ class LEDActuator(IActuator):
         if(command.target_type == self.type):
             return True
         return False
-
+    
     def control_actuator(self, value: str) -> bool:
         """Sets the actuator to the value passed as argument.
 
@@ -40,14 +35,14 @@ class LEDActuator(IActuator):
         """
         if (self.type == ACommand.Type.LIGHT_ON_OFF):
             if(value == "ON"):
-                self.led.on()
                 previous_state = self._current_state
                 self._current_state = "ON"
+                print("Light is " + self._current_state)
                 return previous_state != self._current_state
             elif (value == "OFF"):
-                self.led.off()
                 previous_state = self._current_state
                 self._current_state = "OFF"
+                print("Light is " + self._current_state)
                 return previous_state != self._current_state
         else:
             previous_duration = self.duration
@@ -59,19 +54,18 @@ class LEDActuator(IActuator):
 
             if(self.duration != 0):
                 self._current_state = "PULSE"
-                self.led.pulse(
-                fade_in_time = self.duration/2, 
-                fade_out_time = self.duration/2, 
-                n = 2, background=True)
+                print("Pulse light is " + self._current_state)
+                sleep(self.duration)
             
             self._current_state = "OFF"
+            print("Pulse light is " + self._current_state)
 
             return previous_duration != self.duration
-
+        
 
 def main():
     
-    led = LEDActuator(12, ACommand.Type.LIGHT_PULSE, "ON")
+    led = MockLEDActuator(12, ACommand.Type.LIGHT_PULSE, "ON")
     duration = 2
     print(f"LED pulsing twice for {duration} seconds...")
     led.control_actuator(duration)

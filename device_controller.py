@@ -6,6 +6,7 @@ from fan_control import FanActuator
 from led_pwm import LEDActuator
 from dotenv import dotenv_values
 from mock_fan import MockFanActuator
+from mock_light import MockLEDActuator
 
 
 class DeviceController:
@@ -42,8 +43,9 @@ class DeviceController:
             ]
         else:
             return [
-                #mock light actuator
-                MockFanActuator(16, ACommand.Type.FAN, "OFF")
+                MockFanActuator(16, ACommand.Type.FAN, "OFF"),
+                MockLEDActuator(12, ACommand.Type.LIGHT_ON_OFF, "OFF"),
+                MockLEDActuator(12, ACommand.Type.LIGHT_PULSE, "OFF")
             ]
 
     def read_sensors(self) -> list[AReading]:
@@ -84,15 +86,22 @@ if __name__ == "__main__":
     TEST_SLEEP_TIME = 2
 
     value = "ON"
+    pulse = "0"
 
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(ACommand.Type.FAN, value)
-        fake_command2 = ACommand(ACommand.Type.LIGHT_ON_OFF, value)
-
-        device_manager.control_actuators([fake_command, fake_command2])
+        if(device_manager._environment["PRODUCTION"] == "TRUE"):
+            fake_command = ACommand(ACommand.Type.FAN, value)
+            fake_command2 = ACommand(ACommand.Type.LIGHT_ON_OFF, value)
+            device_manager.control_actuators([fake_command, fake_command2]) 
+        else:
+            fake_command = ACommand(ACommand.Type.FAN, value)
+            fake_command2 = ACommand(ACommand.Type.LIGHT_ON_OFF, value)
+            fake_command3 = ACommand(ACommand.Type.LIGHT_PULSE, pulse)
+            device_manager.control_actuators([fake_command, fake_command2, fake_command3]) 
 
         sleep(TEST_SLEEP_TIME)
 
         value = "ON" if value != "ON" else "OFF"
+        pulse = "0" if pulse != "0" else "1"
