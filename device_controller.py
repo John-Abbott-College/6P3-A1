@@ -1,6 +1,9 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
+from temp_humi_sensor import TempHumiditySensor
+from fan_control import Fan
+from led_pwm import LED
 
 
 class DeviceController:
@@ -14,9 +17,9 @@ class DeviceController:
 
         :return List[ISensor]: List of initialized sensors.
         """
-
+        sensor = TempHumiditySensor(gpio=0, model="AHT20", type=AReading.Type.TEMPERATURE)
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+           sensor
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -24,9 +27,11 @@ class DeviceController:
 
         :return list[IActuator]: List of initialized actuators.
         """
-
+        fan = Fan(12, ACommand.Type.FAN, "off")
+        led = LED(22, ACommand.Type.LIGHT_ON_OFF, "2")
         return [
             # Instantiate each actuator inside this list, separate items by comma.
+            fan, led
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -35,6 +40,8 @@ class DeviceController:
         :return list[AReading]: a list containing all readings collected from sensors.
         """
         readings: list[AReading] = []
+        for sensor in self._sensors:
+            readings.extend(sensor.read_sensor())
 
         return readings
 
@@ -43,6 +50,10 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.validate_command(command):
+                    actuator.control_actuator(command.value)
 
 
 if __name__ == "__main__":
@@ -54,11 +65,20 @@ if __name__ == "__main__":
     TEST_SLEEP_TIME = 2
 
     while True:
+
         print(device_manager.read_sensors())
 
         fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
-
-        device_manager.control_actuators([fake_command])
-
+            ACommand.Type.FAN, "on")
+        fake_command2 = ACommand(
+            ACommand.Type.FAN, "off")
+        fake_command3 = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "on")
+        fake_command4 = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "off")
         sleep(TEST_SLEEP_TIME)
+        device_manager.control_actuators([fake_command])
+        device_manager.control_actuators([fake_command3])
+        sleep(TEST_SLEEP_TIME)
+        device_manager.control_actuators([fake_command2])
+        device_manager.control_actuators([fake_command4])
