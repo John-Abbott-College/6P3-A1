@@ -3,7 +3,11 @@ from time import sleep
 from actuators import IActuator, ACommand
 from temp_humi_sensor import TempHumiditySensor
 from fan_control import Fan
+from mock_actuator import MockLED
 from led_pwm import LED
+from dotenv import load_dotenv
+import os
+
 
 
 class DeviceController:
@@ -34,6 +38,16 @@ class DeviceController:
             fan, led
         ]
 
+    def _initialize_mock_actuators(self) -> list[IActuator]:
+        """Initializes all actuators and returns them as a list. Intended to be used in class constructor
+
+        :return list[IActuator]: List of initialized actuators.
+        """
+        led = MockLED(22, ACommand.Type.LIGHT_ON_OFF, "2")
+        return [
+            # Instantiate each actuator inside this list, separate items by comma.
+            led
+        ]
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors. 
 
@@ -59,10 +73,24 @@ class DeviceController:
 if __name__ == "__main__":
     """This script is intented to be used as a module, however, code below can be used for testing.
     """
-
+    load_dotenv()
+    dev = os.getenv("dev")
+    print(dev)
     device_manager = DeviceController()
-
     TEST_SLEEP_TIME = 2
+    if (dev == "True"):
+        device_manager._actuators = device_manager._initialize_mock_actuators()
+        device_manager._sensors = None
+        print("Test")
+        while True:
+            fake_command3 = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "on")
+            fake_command4 = ACommand(
+            ACommand.Type.LIGHT_ON_OFF, "off")
+            sleep(TEST_SLEEP_TIME)
+            device_manager.control_actuators([fake_command3])
+            sleep(TEST_SLEEP_TIME)
+            device_manager.control_actuators([fake_command4])
 
     while True:
 
