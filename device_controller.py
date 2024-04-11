@@ -42,12 +42,12 @@ class DeviceController:
         if dotenv_values()["ENVIRONMENT"] == "PRODUCTION":
             return [
                 FanActuator(22, ACommand.Type.FAN, "0"),
-                LEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
+                LEDActuator(5, ACommand.Type.LIGHT_ON_OFF, "0"),
             ]
         else:
             return [
                 MockFanActuator(22, ACommand.Type.FAN, "0"),
-                MockLEDActuator(5, ACommand.Type.LIGHT_PULSE, "0"),
+                MockLEDActuator(5, ACommand.Type.LIGHT_ON_OFF, "0"),
             ]
 
     def read_sensors(self) -> list[AReading]:
