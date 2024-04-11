@@ -9,7 +9,7 @@ load_dotenv()
 
 env = getenv('ENV')
 
-if env == "Dev":
+if env == "DEV":
     from SimulationClasses import DevSimulationTempHumSensor, DevFanActuation, DevLEDActuation
 else:
     from fan_control import FanActuator
@@ -27,10 +27,17 @@ class Device_Controller:
 
             :return List[ISensor]: List of initialized sensors.
             """
-            
+            if env == "DEV":
+                return [
+               DevSimulationTempHumSensor()
+                # Instantiate each sensor inside this list, separate items by comma.
+            ]
                 
             return [
-                TempHumiditySensor()
+                # For testing
+
+                DevSimulationTempHumSensor()
+                #TempHumiditySensor()
                 # Instantiate each sensor inside this list, separate items by comma.
             ]
 
@@ -39,11 +46,19 @@ class Device_Controller:
 
         :return list[IActuator]: List of initialized actuators.
         """
-        
+        if env == "Dev":
+            return [
+                DevFanActuation(ACommand.Type.FAN),
+                DevLEDActuation(ACommand.Type.LIGHT_PULSE, "0")
+            ]
         return [
-            FanActuator(16, ACommand.Type.FAN, "0"),
-            LEDActuator(12, ACommand.Type.LIGHT_PULSE, "0"),
+            # for testing
+            #FanActuator(16, ACommand.Type.FAN, "0"),
+            #LEDActuator(12, ACommand.Type.LIGHT_PULSE, "0"),
             # Instantiate each actuator inside this list, separate items by comma.
+
+            DevFanActuation(ACommand.Type.FAN),
+            DevLEDActuation(ACommand.Type.LIGHT_PULSE, "0")
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -69,20 +84,4 @@ class Device_Controller:
                 if actuator.type == command.target_type:
                     actuator.control_actuator(command.value)
     
-    def loop(self):
-        while True:
-            self.control_actuators([ACommand(ACommand.Type.FAN,"1")])
-            self.read_sensors()
-            sleep(2)
-
-
-def main():
-    controller = Device_Controller()
-    controller.loop()
-
-
-if __name__ == "__main__":
-    try: 
-        main()
-    except KeyboardInterrupt:
-        pass
+    
