@@ -50,7 +50,7 @@ class ISensor(ABC):
     reading_type: AReading.Type
 
     @abstractmethod
-    def __init__(self, gpio: int,  model: str, type: AReading.Type):
+    def __init__(self, gpio: int, model: str, type: AReading.Type):
         """Constructor for Sensor  class. May be called from childclass.
 
         :param str model: specific model of sensor hardware. Ex. AHT20 or LTR-303ALS-01
@@ -64,3 +64,4 @@ class ISensor(ABC):
         :return list[AReading]: List of readinds measured by the sensor. Most sensors return a list with a single item.
         """
         pass
+    
