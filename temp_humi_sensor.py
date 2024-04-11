@@ -1,29 +1,30 @@
 from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
-from sensors import ISensor, AReading
 from time import sleep
+from sensors import AReading, ISensor
 
-class TempHumiditySensor(ISensor):
-    def __init__(self, address: hex = 0x38, bus: int = 4) -> None:
-        self._sensor_model = "AHT20"
-        self._address = address
-        self._bus = bus
-        self.sensor = GroveTemperatureHumidityAHT20(address=address, bus=bus)
-        self.reading_type = AReading.Type.TEMPERATURE  # Assuming this sensor is primarily a temperature sensor
 
-    def read_sensor(self) -> list[AReading]:
+class TempHumiditySensor(ISensor): 
+    def __init__(self, address:hex=0x38, bus:int=4) -> None:
+        self.sensor = GroveTemperatureHumidityAHT20(address = address, bus = bus)
+
+    def read_sensor(self) -> list[AReading]: 
         temperature, humidity = self.sensor.read()
-        return [
-            AReading(type=AReading.Type.TEMPERATURE, unit=AReading.Unit.CELCIUS, value=temperature),
-            AReading(type=AReading.Type.HUMIDITY, unit=AReading.Unit.HUMIDITY, value=humidity)
-        ]
+
+        return [AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temperature), AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, humidity)]
+    
 
 def main():
     sensor = TempHumiditySensor()
     while True:
         readings = sensor.read_sensor()
-        for reading in readings:
-            print(f'{reading.reading_type.value}: {reading.value} {reading.reading_unit.value}')
+        temperature_reading = readings[0]
+        humidity_reading = readings[1]
+
+        print('Temperature in Celsius is {:.2f} C'.format(temperature_reading.value))
+        print('Relative Humidity is {:.2f} %'.format(humidity_reading.value))
         sleep(1)
+
+
 
 if __name__ == "__main__":
     try:
