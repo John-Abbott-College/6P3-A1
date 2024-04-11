@@ -23,9 +23,27 @@ app.layout = html.Div([
 
     html.Div([
         html.Button('Turn OFF Fan', id='fan-off-button', n_clicks=0, style={'width': '70px'})
-    ])
+    ]),
+
+    html.Div(id='sensor-values'),
+
+    dcc.Interval(
+        id='interval-component',
+        interval=1*1000,  # in milliseconds
+        n_intervals=0
+    )
     
 ])
+
+@app.callback(
+    Output('sensor-values', 'children'),
+    Input('interval-component', 'n_intervals')
+)
+def update_sensor_values(n):
+    sensor_values = deviceController.read_sensors()
+    return [html.P(f'{reading.reading_type.value}: {reading.value}{reading.reading_unit.value}') for reading in sensor_values]
+
+
 
 @app.callback(
     Output('led-input', 'value'),
