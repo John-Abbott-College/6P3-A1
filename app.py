@@ -1,5 +1,7 @@
-from dash import Dash, html, callback, Output, Input, State
-from device_controller import DeviceController, ACommand
+from dash import Dash, html, dcc, callback, Output, Input
+from device_controller import DeviceController, ACommand, AReading
+import plotly.graph_objs as go
+from datetime import datetime
 import os
 
 
@@ -21,6 +23,12 @@ app.layout = html.Div(
                     [html.H2("Actuators"), 
                      html.Button("Turn Fan On", id="fan-button", n_clicks=0),
                      html.Button("Turn LED On", id="led-button", n_clicks=0)],
+                    className="device-container",
+                ),
+                html.Div(
+                    [html.H2("Sensor Readings"), 
+                     dcc.Graph(id="temperature-graph", className="dash-graph"),
+                     dcc.Graph(id="humidity-graph", className="dash-graph")],
                     className="device-container",
                 ),
             ],
@@ -60,6 +68,57 @@ def led_button_clicked(n_clicks, button_text):
     device_manager.control_actuators([ACommand(ACommand.Type.LIGHT_PULSE, new_state.lower())])
 
     return f"Turn LED {new_state}"
+
+@app.callback(
+    [Output("temperature-graph", "figure"), Output("humidity-graph", "figure")],
+    [Input("interval-component", "n_intervals")]
+)
+def update_graphs(n):
+    data = device_manager.read_sensors()
+    current_time = datetime.now()
+
+    temperature_readings = [(current_time, reading.value) for reading in data if reading.reading_type == AReading.Type.TEMPERATURE]
+    humidity_readings = [(current_time, reading.value) for reading in data if reading.reading_type == AReading.Type.HUMIDITY]
+
+    temp_times, temp_values = zip(*temperature_readings) if temperature_readings else ([], [])
+    humid_times, humid_values = zip(*humidity_readings) if humidity_readings else ([], [])
+
+    temperature_figure = go.Figure(
+        data=[
+            go.Scatter(
+                x=temp_times, y=temp_values, mode="lines+markers", name="Temperature"
+            )
+        ],
+        layout=go.Layout(
+            title="Temperature Over Time",
+            xaxis=dict(title="Time"),
+            yaxis=dict(title="Temperature (°C)"),
+            template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            autosize=True,
+        ),
+    )
+
+    humidity_figure = go.Figure(
+        data=[
+            go.Scatter(
+                x=humid_times, y=humid_values, mode="lines+markers", name="Humidity"
+            )
+        ],
+        layout=go.Layout(
+            title="Humidity Over Time",
+            xaxis=dict(title="Time"),
+            yaxis=dict(title="Humidity (%)"),
+            template="plotly_dark",
+            paper_bgcolor="rgba(0,0,0,0)",
+            plot_bgcolor="rgba(0,0,0,0)",
+            autosize=True,
+        ),
+    )
+
+    return temperature_figure, humidity_figure
+
 
 
 if __name__ == "__main__":
