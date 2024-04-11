@@ -1,4 +1,4 @@
-from dash import Dash, html, Input, Output, State, callback_context, dcc
+from dash import Dash, html, Input, Output, State, dcc
 import plotly.graph_objs as go
 import dash_bootstrap_components as dbc
 from device_controller import DeviceController
