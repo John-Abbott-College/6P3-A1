@@ -58,7 +58,7 @@ class Device_Controller:
             # Instantiate each actuator inside this list, separate items by comma.
 
             DevFanActuation(ACommand.Type.FAN),
-            DevLEDActuation(ACommand.Type.LIGHT_PULSE, "0")
+            DevLEDActuation(ACommand.Type.LIGHT_ON_OFF, "0")
         ]
 
     def read_sensors(self) -> list[AReading]:
