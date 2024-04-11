@@ -1,55 +1,54 @@
 from sensors import ISensor, AReading
-from actuators import IActuator, ACommand
-from temp_humi_sensor import TempController
-from fan_control import FanController
-from led_pwm import LEDController
 from time import sleep
+from actuators import IActuator, ACommand
+from temp_humi_sensor import TempHumiditySensor
+from led_pwm import LEDActuator
+from fan_control import FanActuator
 
 class DeviceController:
 
-    def __init__(self):
-        self._sensors = self._init_sensors()
-        self._actuators = self._init_actuators()
+    def __init__(self) -> None:
+        self._sensors: list[ISensor] = self._initialize_sensors()
+        self._actuators: list[IActuator] = self._initialize_actuators()
 
-    def _init_sensors(self) -> list[ISensor]:
-        return [TempController(bus=4, model="AHT20", reading_type=AReading.Type.TEMPERATURE)]
-
-    def _init_actuators(self) -> list[IActuator]:
+    def _initialize_sensors(self) -> list[ISensor]:
+        """Initializes all sensors and returns them as a list."""
         return [
-            LEDController(pin=16, cmd_type=ACommand.Type.LIGHT_PULSE, state="OFF"),
-            FanController(pin=22, cmd_type=ACommand.Type.FAN, state="OFF"),
+            TempHumiditySensor()
+        ]
+
+    def _initialize_actuators(self) -> list[IActuator]:
+        """Initializes all actuators and returns them as a list."""
+        return [
+            FanActuator(gpio=16),
+            LEDActuator(gpio=12),
         ]
 
     def read_sensors(self) -> list[AReading]:
-        data = []
-        for device in self._sensors:
-            data += device.read_sensor()
-        return data
+        """Reads data from all initialized sensors."""
+        readings: list[AReading] = []
+        for sensor in self._sensors:
+            readings.extend(sensor.read_sensor())
+        return readings
 
-    def control_actuators(self, cmds: list[ACommand]) -> None:
-        for cmd in cmds:
-            for device in self._actuators:
-                if device.validate_command(cmd):
-                    device.control_actuator(cmd.value)
+    def control_actuators(self, commands: list[ACommand]) -> None:
+        """Controls actuators according to a list of commands."""
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.validate_command(command):
+                    actuator.control_actuator(command.value)
 
 if __name__ == "__main__":
-    hub = DeviceController()
-    test_interval = 3
+    device_manager = DeviceController()
+
+    TEST_SLEEP_TIME = 2
 
     while True:
-        sensor_readings = hub.read_sensors()
-        print(sensor_readings)
+        print(device_manager.read_sensors())
 
-        on_cmds = [
-            ACommand(target=ACommand.Type.FAN, value="ON"),
-            ACommand(target=ACommand.Type.LIGHT_PULSE, value="ON"),
-        ]
-        hub.control_actuators(on_cmds)
-        sleep(test_interval)
+        fake_command_fan = ACommand(ACommand.Type.FAN, "1")
+        fake_command_led = ACommand(ACommand.Type.LIGHT_PULSE, "0.5")
 
-        off_cmds = [
-            ACommand(target=ACommand.Type.FAN, value="OFF"),
-            ACommand(target=ACommand.Type.LIGHT_PULSE, value="OFF"),
-        ]
-        hub.control_actuators(off_cmds)
-        sleep(test_interval)
+        device_manager.control_actuators([fake_command_fan, fake_command_led])
+
+        sleep(TEST_SLEEP_TIME)
