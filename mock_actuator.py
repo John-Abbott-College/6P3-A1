@@ -1,13 +1,12 @@
-from gpiozero import PWMLED
 from signal import pause
 from actuators import IActuator, ACommand
+import time
 
-class LEDActuator(IActuator):
+class MockActuator(IActuator):
     _current_state: str
     type: ACommand.Type
 
     def __init__(self, gpio: int, type: ACommand.Type, initial_state: str) -> None:
-        self.led = PWMLED(gpio)
         self.duration = 0
         self.type = type
         self._current_state = initial_state
@@ -23,19 +22,20 @@ class LEDActuator(IActuator):
         except TypeError:
             print(f"Invalid argument {value}, must be a float")
 
-        self.led.pulse(
-            fade_in_time = self.duration/2, 
-            fade_out_time = self.duration/2, 
-            n = 2, background=False)
+        print(f"{self.type.name} On")
+
+        time.sleep(float(value))
+
+        print(f"{self.type.name} Off")
 
         return previous_duration != self.duration
 
 
 def main():
-    led = LEDActuator(gpio=12)
+    actuator = MockActuator(gpio=12)
     duration = 2
-    print(f"LED pulsing twice for {duration} seconds...")
-    led.control_actuator(duration)
+    print(f"Controlling {actuator.type.name} for {duration} seconds...")
+    actuator.control_actuator(duration)
     print(f"Finished. Press CTRL-C to exit.")
     pause()
 
