@@ -1,64 +1,77 @@
 from sensors import ISensor, AReading
 from time import sleep
 from actuators import IActuator, ACommand
-
+from led_pwm import LEDActuator
+from fan_control import FanActuator
+from temp_humi_sensor import TempHumiditySensor
+from dotenv import load_dotenv
+import os
 
 class DeviceController:
-
     def __init__(self) -> None:
-        self._sensors: list[ISensor] = self._initialize_sensors()
-        self._actuators: list[IActuator] = self._initialize_actuators()
-
-    def _initialize_sensors(self) -> list[ISensor]:
-        """Initializes all sensors and returns them as a list. Intended to be used in class constructor.
-
-        :return List[ISensor]: List of initialized sensors.
-        """
-
-        return [
-            # Instantiate each sensor inside this list, separate items by comma.
+        self._sensors = [TempHumiditySensor(address=0x38, bus=4)]
+        self._actuators = [
+            LEDActuator(gpio=12),
+            FanActuator(gpio=16)
         ]
 
-    def _initialize_actuators(self) -> list[IActuator]:
-        """Initializes all actuators and returns them as a list. Intended to be used in class constructor
+    def read_sensors(self):
+        """Read data from all initialized sensors."""
+        return [sensor.read_sensor() for sensor in self._sensors]
 
-        :return list[IActuator]: List of initialized actuators.
-        """
+    def control_actuators(self, commands):
+        """Control actuators based on commands from the dashboard."""
+        for command in commands:
+            if command.target_type == ACommand.Type.LIGHT_PULSE:
+                # Extract LED value from command and convert to int
+                led_value = int(command.value)
+                if led_value == 1:
+                    self._actuators[0].turn_on()
+                else:
+                    self._actuators[0].turn_off()
+            elif command.target_type == ACommand.Type.FAN:
+                # Turn fan actuator on or off based on the command value
+                fan_value = int(command.value)
+                if fan_value == 1:
+                    self._actuators[1].turn_on_fan()
+                else:
+                    self._actuators[1].turn_off_fan()
 
-        return [
-            # Instantiate each actuator inside this list, separate items by comma.
-        ]
+        
+    def loop(self) -> None:
+        """Main loop of the device controller."""
+        while True:
+            self.control_actuators()
+            print(self.read_sensors())
+            sleep(2)
+
+class MockSensor:
+    def __init__(self, name):
+        self.name = name
+
+    def read(self):
+        print(f"Reading from {self.name} sensor")
+
+class MockActuator:
+    def __init__(self, name):
+        self.name = name
+
+    def turn_on(self):
+        print(f"Turning {self.name} actuator ON")
+
+    def turn_off(self):
+        print(f"Turning {self.name} actuator OFF")
 
     def read_sensors(self) -> list[AReading]:
-        """Reads data from all initialized sensors. 
-
-        :return list[AReading]: a list containing all readings collected from sensors.
-        """
+        """Reads data from all initialized sensors."""
         readings: list[AReading] = []
-
+        for sensor in self._sensors:
+            readings.extend(sensor.read_sensor())
         return readings
 
-    def control_actuators(self, commands: list[ACommand]) -> None:
-        """Controls actuators according to a list of commands. Each command is applied to it's respective actuator.
-
-        :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
-        """
-
-
 if __name__ == "__main__":
-    """This script is intented to be used as a module, however, code below can be used for testing.
-    """
-
-    device_manager = DeviceController()
-
-    TEST_SLEEP_TIME = 2
-
-    while True:
-        print(device_manager.read_sensors())
-
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
-
-        device_manager.control_actuators([fake_command])
-
-        sleep(TEST_SLEEP_TIME)
+    device_controller = DeviceController()
+    try:
+        device_controller.loop()
+    except KeyboardInterrupt:
+        pass
