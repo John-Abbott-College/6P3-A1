@@ -1,6 +1,6 @@
 from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
-from time import sleep
 from sensors import AReading, ISensor
+from time import sleep
 
 
 class TempHumiditySensor(ISensor):
@@ -19,8 +19,7 @@ class TempHumiditySensor(ISensor):
         return list([
             AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, temperature),
             AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, humidity)
-        ]
-        )
+        ])
     
 
 def main():

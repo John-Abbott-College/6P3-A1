@@ -6,10 +6,13 @@ from actuators import IActuator, ACommand
 from temp_humi_sensor import TempHumiditySensor
 from fan_control import FanActuator
 from led_pwm import LEDActuator
+from dotenv import dotenv_values
+from mock_sensor import MockSensor
+from mock_actuator import MockActuator
 
 class DeviceController:
-
     def __init__(self) -> None:
+        self._env = dotenv_values(".env")
         self._sensors: list[ISensor] = self._initialize_sensors()
         self._actuators: list[IActuator] = self._initialize_actuators()
 
@@ -19,10 +22,16 @@ class DeviceController:
         :return List[ISensor]: List of initialized sensors.
         """
 
-        return [
-            # Instantiate each sensor inside this list, separate items by comma.
-            TempHumiditySensor(gpio=4, model="AHT20", type=AReading.Type.TEMPERATURE)
-        ]
+        if self._env["PROD_MODE_ON"] == "ON":
+            return [
+                # Instantiate each sensor inside this list, separate items by comma.
+                TempHumiditySensor(gpio=4, model="AHT20", type=AReading.Type.TEMPERATURE)
+            ]
+        elif self._env["PROD_MODE_ON"] == "OFF":
+            return [
+                # Instantiate each sensor inside this list, separate items by comma.
+                MockSensor(gpio=4, model="AHT20", type=AReading.Type.TEMPERATURE)
+            ]
 
     def _initialize_actuators(self) -> list[IActuator]:
         """Initializes all actuators and returns them as a list. Intended to be used in class constructor
@@ -30,11 +39,18 @@ class DeviceController:
         :return list[IActuator]: List of initialized actuators.
         """
 
-        return [
-            # Instantiate each actuator inside this list, separate items by comma.
-            FanActuator(gpio=16, type=ACommand.Type.FAN, initial_state="OFF"),
-            LEDActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE, initial_state="OFF")
-        ]
+        if self._env["PROD_MODE_ON"] == "ON":
+            return [
+                # Instantiate each actuator inside this list, separate items by comma.
+                FanActuator(gpio=16, type=ACommand.Type.FAN, initial_state="OFF"),
+                LEDActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE, initial_state="OFF")
+            ]
+        elif self._env["PROD_MODE_ON"] == "OFF":
+            return [
+                # Instantiate each actuator inside this list, separate items by comma.
+                MockActuator(gpio=16, type=ACommand.Type.FAN, initial_state="OFF"),
+                MockActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE, initial_state="OFF")
+            ]
 
     def read_sensors(self) -> list[AReading]:
         """Reads data from all initialized sensors. 
@@ -44,7 +60,10 @@ class DeviceController:
         readings: list[AReading] = []
 
         for sensor in self._sensors:
-            readings.append(sensor.read_sensor())
+            readings.extend(sensor.read_sensor())
+
+        for reading in readings:
+            print(reading.value, reading.reading_unit, reading.reading_type)
 
         return readings
 
