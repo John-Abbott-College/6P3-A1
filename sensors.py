@@ -16,7 +16,7 @@ class AReading(ABC):
         LUMINOSITY = 'luminosity'
 
     class Unit(str, Enum):
-        """Enum defining all possible units for sensor measuremens.
+        """Enum defining all posasible units for sensor measuremens.
         """
         # Add new reading units here.
         MILLIMITERS = 'mm'
