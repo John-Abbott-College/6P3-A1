@@ -1,0 +1,8 @@
+grove
+gpiozero
+dash
+Pigpio
+Rpi.GPIO
+lgpio
+plotly.graph_objs
+collections
