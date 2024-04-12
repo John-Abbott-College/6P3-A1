@@ -8,16 +8,15 @@ from actuators import ACommand
 import plotly.graph_objs as graphing
 import time
 
-#Initialize the device controller her to get the methods
-device_controller = DeviceController()
 
 #Had to make the arrays to read the outputs of the sensor
+time_readings = []
 temperature_readings = []
 humidity_readings = []
-time_readings = []
 
-# Initialize the app
-app = dash.Dash(__name__)
+
+#Initialize the device controller her to get the methods
+device_controller = DeviceController()
 
 #I put the readings in another method to separate the concerns from displaying the data
 #I had to put it here after experimenting where it could go. 
@@ -29,6 +28,11 @@ def sensor_reading_updates(n):
     temperature_readings.append(temperature)   
     time_readings.append(read_time)
 
+# Initialize the app
+app = dash.Dash(__name__)
+
+
+
 
 #I got the idea to stack the buttons vertically using flex from here:
 # https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
@@ -37,7 +41,8 @@ def sensor_reading_updates(n):
 #https://blog.finxter.com/plotly-dash-button-component/
 
 app.layout = html.Div([
-    html.H3(children='Control the Raspberry Pi with Buttons', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+    html.H3(children='Control the Raspberry Pi with Buttons', 
+            style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
     html.Hr(),
     html.Div([
         html.Button('Turn Light On', id='light-button', style={'background-color': '#DB1F48', 
@@ -53,14 +58,22 @@ app.layout = html.Div([
         'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
 
     html.Div([
-      html.H3(children='Temperature and Humidity Graph', style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
-        dcc.Graph(id='live-temp-humid-graph'),
+      html.H3(children='Temperature Graph', 
+            style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+        dcc.Graph(id='live-temp-graph')
+        ], style={'margin-bottom': '50px', 'textAlign': 'center'}),
+    
+    
+    html.Div([
+      html.H3(children='Humidity Graph', 
+            style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+        dcc.Graph(id='live-humid-graph'),
         dcc.Interval(
                 id='interval-readings',
                 interval=5000, 
                 n_intervals=0
             )
-        ], style={'margin-bottom': '50px', 'textAlign': 'center'})    
+        ], style={'margin-bottom': '50px', 'textAlign': 'center'})     
     ], style={'margin': '50px auto', 'width': '50%', 'text-align': 'center'}
 )
 
@@ -99,7 +112,8 @@ def fan_button_controller(on, off):
         return 0,0
 
 @app.callback(
-    Output('live-temp-humid-graph', 'figure'),
+    Output('live-temp-graph', 'figure'),
+    Output('live-humid-graph', 'figure'),
     Input('interval-readings', 'n_intervals'),
     prevent_initial_call=True
 )
@@ -114,41 +128,47 @@ def sensor_graph_readings(n):
 
     sensor_reading_updates(n)
 
-    figure_made = graphing.Figure()
-   
+    humidity_graph = graphing.Figure()
+    temperature_graph = graphing.Figure()
 
     #Updating the humidity part of the graph here    
-    figure_made.add_trace(graphing.Scatter(
+    humidity_graph.add_trace(graphing.Scatter(
         x=time_readings,
         y=humidity_readings,
         name='Humidity (%)',
         mode='lines+markers+text',
         line=dict(
-            color='black'
+            color='green'
         )
     ))
+    
     #Updating the temperature part of the graph here    
-    figure_made.add_trace(graphing.Scatter(
+    temperature_graph.add_trace(graphing.Scatter(
         x=time_readings,
         y=temperature_readings,
         name='Temperature (°C)',
         mode='lines+markers+text',
         line=dict(
-            color='red'
+            color='purple'
         )
     ))
 
-    #Adding both graphs to the layout
-    layout = graphing.Layout(     
-        title='Temperature/Humidity Readings',  
+   
+    layout = graphing.Layout(  
         xaxis=dict(title='Time'),
-        yaxis=dict(title='Temperature/Humidity'),
+        yaxis=dict(title='Temperature (°C)'),
     )
 
+    temperature_graph.update_layout(layout)
 
-    figure_made.update_layout(layout)
+    layout = graphing.Layout(          
+        xaxis=dict(title='Time'),
+        yaxis=dict(title='Humidity (%)'),
+    )
+
+    humidity_graph.update_layout(layout)
     
-    return figure_made
+    return temperature_graph, humidity_graph
 
 
 
