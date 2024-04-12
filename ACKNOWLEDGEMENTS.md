@@ -1,16 +1,15 @@
 # ACKNOWLEDGEMENTS
 
-I, <insert your name here>, certify that the code in this repository is written by me, excepted where otherwise noted.
-
-<INSTRUCTION: Replace any angle-bracketed sections with answers, or delete them when there is no answer to give. For example, you should write your own name in the previous paragraph, and delete this paragraph.>
+I, Jiahao Yu, certify that the code in this repository is written by me, excepted where otherwise noted.
 
 ## Sources
 
-<For each source you used or adapted code from for completing this assignment, add an entry to this list with each of the following fields. In the "Notes" field, write a short senteence or two explaining where the code was used and how it was modified/adaptoped>
-
-<NOTE: the sources below include any website you used code from: stackoverflow, other repositories on GitHub, ChatGPT, etc.>
-
 1. 
-    - URL: <enter URL of source here>
-    - date of retrieval: <enter date of retrieval here>
-    - Notes: <enter explanatory note here>
+    - URL: https://chat.openai.com/
+    - date of retrieval: 2024.04.06
+    - Notes: Used chatgpt for a bit on the ui part on part 3-4, but I wrote the rest of the code behind of the ui
+
+2. 
+    - Source of code: Eike's Part 5 connection_manager.py threshold part
+    - date of retrieval: 2024.04.11
+    - Notes: Referenced Eike's code for inspiration for how to make the threshold part works
