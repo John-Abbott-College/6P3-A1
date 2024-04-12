@@ -58,15 +58,22 @@ app.layout = html.Div([
         'align-items': 'center', 'margin-bottom': '20px', 'text-align': 'center'}),  
 
     html.Div([
-      html.H3(children='Temperature and Humidity Graph', 
+      html.H3(children='Temperature Graph', 
             style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
-        dcc.Graph(id='live-temp-humid-graph'),
+        dcc.Graph(id='live-temp-graph')
+        ], style={'margin-bottom': '50px', 'textAlign': 'center'}),
+    
+    
+    html.Div([
+      html.H3(children='Humidity Graph', 
+            style={'color':'#000', 'font-family':'Verdana', 'text-align': 'center'}),
+        dcc.Graph(id='live-humid-graph'),
         dcc.Interval(
                 id='interval-readings',
                 interval=5000, 
                 n_intervals=0
             )
-        ], style={'margin-bottom': '50px', 'textAlign': 'center'})    
+        ], style={'margin-bottom': '50px', 'textAlign': 'center'})     
     ], style={'margin': '50px auto', 'width': '50%', 'text-align': 'center'}
 )
 
@@ -105,7 +112,8 @@ def fan_button_controller(on, off):
         return 0,0
 
 @app.callback(
-    Output('live-temp-humid-graph', 'figure'),
+    Output('live-temp-graph', 'figure'),
+    Output('live-humid-graph', 'figure'),
     Input('interval-readings', 'n_intervals'),
     prevent_initial_call=True
 )
@@ -120,41 +128,47 @@ def sensor_graph_readings(n):
 
     sensor_reading_updates(n)
 
-    figure_made = graphing.Figure()
-   
+    humidity_graph = graphing.Figure()
+    temperature_graph = graphing.Figure()
 
     #Updating the humidity part of the graph here    
-    figure_made.add_trace(graphing.Scatter(
+    humidity_graph.add_trace(graphing.Scatter(
         x=time_readings,
         y=humidity_readings,
         name='Humidity (%)',
         mode='lines+markers+text',
         line=dict(
-            color='black'
+            color='green'
         )
     ))
+    
     #Updating the temperature part of the graph here    
-    figure_made.add_trace(graphing.Scatter(
+    temperature_graph.add_trace(graphing.Scatter(
         x=time_readings,
         y=temperature_readings,
         name='Temperature (°C)',
         mode='lines+markers+text',
         line=dict(
-            color='red'
+            color='purple'
         )
     ))
 
-    #Adding both graphs to the layout
-    layout = graphing.Layout(     
-        title='Temperature/Humidity Readings',  
+   
+    layout = graphing.Layout(  
         xaxis=dict(title='Time'),
-        yaxis=dict(title='Temperature/Humidity'),
+        yaxis=dict(title='Temperature (°C)'),
     )
 
+    temperature_graph.update_layout(layout)
 
-    figure_made.update_layout(layout)
+    layout = graphing.Layout(          
+        xaxis=dict(title='Time'),
+        yaxis=dict(title='Humidity (%)'),
+    )
+
+    humidity_graph.update_layout(layout)
     
-    return figure_made
+    return temperature_graph, humidity_graph
 
 
 
