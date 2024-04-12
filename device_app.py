@@ -38,7 +38,7 @@ app = dash.Dash(__name__)
 # https://community.plotly.com/t/vertically-stack-radioitems-as-buttongroup/72302/3
 #I got the idea to style the buttons from here:
 #https://dash.plotly.com/tutorial#html-and-css
-#https://blog.finxter.com/plotly-dash-button-component/
+
 
 app.layout = html.Div([
     html.H3(children='Control the Raspberry Pi with Buttons', 
@@ -124,6 +124,7 @@ def fan_button_controller(on, off):
 #https://dash.plotly.com/tutorial
 #https://www.youtube.com/watch?v=g3VQAVz_0qo
 #https://plotly.com/python/reference/scatter/
+#https://dash.plotly.com/live-updates
 def sensor_graph_readings(n):
 
     sensor_reading_updates(n)
