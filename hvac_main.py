@@ -3,8 +3,10 @@ from device_controller import DeviceController
 
 from time import sleep
 
+
 class Hvac:
     DEBUG = True
+
     def __init__(self) -> None:
         self._connection_manager = ConnectionManager()
         self._device_manager = DeviceController()

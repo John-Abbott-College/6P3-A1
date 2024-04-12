@@ -1,6 +1,7 @@
 import random
 from time import sleep
 
+
 class MockDeviceController:
     def __init__(self):
         pass
@@ -13,7 +14,7 @@ class MockDeviceController:
 
             print(f"Fan is {fan_value}")
             print(f"LED is {led_value}")
-           
+
             temperature = round(random.uniform(20, 30), 2)
             humidity = round(random.uniform(40, 60), 2)
 

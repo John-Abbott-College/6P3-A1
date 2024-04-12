@@ -7,6 +7,7 @@ from temp_humi_sensor import TempHumiditySensor
 from dotenv import load_dotenv
 import os
 
+
 class DeviceController:
     def __init__(self) -> None:
         self._sensors = [TempHumiditySensor(address=0x38, bus=4)]
@@ -37,7 +38,6 @@ class DeviceController:
                 else:
                     self._actuators[1].turn_off_fan()
 
-        
     def loop(self) -> None:
         """Main loop of the device controller."""
         while True:
@@ -45,12 +45,14 @@ class DeviceController:
             print(self.read_sensors())
             sleep(2)
 
+
 class MockSensor:
     def __init__(self, name):
         self.name = name
 
     def read(self):
         print(f"Reading from {self.name} sensor")
+
 
 class MockActuator:
     def __init__(self, name):
@@ -68,6 +70,7 @@ class MockActuator:
         for sensor in self._sensors:
             readings.extend(sensor.read_sensor())
         return readings
+
 
 if __name__ == "__main__":
     device_controller = DeviceController()

@@ -2,6 +2,7 @@ from gpiozero import OutputDevice
 from time import sleep
 from actuators import IActuator, ACommand
 
+
 class FanActuator:
     def __init__(self, gpio: int, initial_state: str = "0") -> None:
         self.gpio = gpio
@@ -26,7 +27,6 @@ class FanActuator:
         self.control_actuator("0")
 
 
-
 def main():
     fan_actuator = FanActuator(gpio=16)
     fan_actuator.control_actuator("1")
@@ -38,7 +38,7 @@ def main():
 
 
 if __name__ == "__main__":
-    try: 
+    try:
         main()
     except KeyboardInterrupt:
         pass

@@ -2,12 +2,13 @@ from gpiozero import PWMLED
 from signal import pause
 from actuators import IActuator, ACommand
 
+
 class LEDActuator:
-    def __init__(self, gpio:int) -> None:
+    def __init__(self, gpio: int) -> None:
         self.led = PWMLED(gpio)
         self.duration = 0
 
-    def control_actuator(self, value:str) -> bool:
+    def control_actuator(self, value: str) -> bool:
         try:
             brightness = float(value)
         except TypeError:
@@ -18,7 +19,7 @@ class LEDActuator:
         self.led.value = brightness
 
         return True
-    
+
     def turn_on(self):
         self.led.value = 1.0
 
@@ -36,7 +37,7 @@ def main():
 
 
 if __name__ == "__main__":
-    try: 
+    try:
         main()
     except KeyboardInterrupt:
         pass

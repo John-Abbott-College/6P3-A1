@@ -1,10 +1,12 @@
-import dash, threading
+import dash
+import threading
 from sensors import AReading
 from actuators import ACommand
 
 
 from dash.dependencies import State, Output, Input
 from dash import Dash, html, dcc
+
 
 class ConnectionManager():
 
@@ -15,8 +17,10 @@ class ConnectionManager():
 
         self.app.layout = html.Div([
             html.Div([
-                html.Button('Turn LED On', id='led-on-button', n_clicks=0, style={'width': '100px', 'margin-right': '5px'}),
-                html.Button('Turn LED Off', id='led-off-button', n_clicks=0, style={'width': '100px'}),
+                html.Button('Turn LED On', id='led-on-button', n_clicks=0,
+                            style={'width': '100px', 'margin-right': '5px'}),
+                html.Button('Turn LED Off', id='led-off-button',
+                            n_clicks=0, style={'width': '100px'}),
             ], style={'margin-bottom': '40px'}),
 
             html.Div(id='led-status'),
@@ -27,11 +31,13 @@ class ConnectionManager():
             ], style={'margin-bottom': '10px'}),
 
             html.Div([
-                html.Button('Turn ON Fan', id='fan-on-button', n_clicks=0, style={'width': '70px'}),
+                html.Button('Turn ON Fan', id='fan-on-button',
+                            n_clicks=0, style={'width': '70px'}),
             ], style={'margin-bottom': '10px'}),
 
             html.Div([
-                html.Button('Turn OFF Fan', id='fan-off-button', n_clicks=0, style={'width': '70px'})
+                html.Button('Turn OFF Fan', id='fan-off-button',
+                            n_clicks=0, style={'width': '70px'})
             ]),
 
             html.Div(id='sensor-values'),
@@ -43,7 +49,6 @@ class ConnectionManager():
             )
         ])
 
-
         @self.app.callback(
             Output('sensor-values', 'children'),
             Input('int-comp', 'n_intervals'),
@@ -54,8 +59,8 @@ class ConnectionManager():
             for reading in self.readings:
                 sensor_values.append(html.P(f'Temperature: {reading[0]}'))
                 sensor_values.append(html.P(f'Humidity: {reading[1]}'))
-                if reading[0] >= threshold:  
-                    self.commands.append(ACommand(ACommand.Type.FAN, "1"))                            
+                if reading[0] >= threshold:
+                    self.commands.append(ACommand(ACommand.Type.FAN, "1"))
             return sensor_values
 
         @self.app.callback(
@@ -82,7 +87,6 @@ class ConnectionManager():
             if n_clicks > 0:
                 self.commands.append(ACommand(ACommand.Type.FAN, "0"))
 
-       
         @self.app.callback(
             Output('led-off-button', 'n_clicks'),
             Input('led-off-button', 'n_clicks')
@@ -92,7 +96,8 @@ class ConnectionManager():
                 self.commands.append(ACommand(ACommand.Type.LIGHT_PULSE, "0"))
 
     def connect(self):
-        thread  = threading.Thread(target=self.app.run_server, kwargs={'port': 8051})
+        thread = threading.Thread(
+            target=self.app.run_server, kwargs={'port': 8051})
         thread.daemon = True
         thread.start()
 
@@ -103,5 +108,3 @@ class ConnectionManager():
         commands = self.commands
         self.commands = []
         return commands
-
-        
