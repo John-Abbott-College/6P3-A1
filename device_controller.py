@@ -1,6 +1,20 @@
 from sensors import ISensor, AReading
-from time import sleep
 from actuators import IActuator, ACommand
+from time import sleep
+import os
+from dotenv import load_dotenv
+
+
+load_dotenv() 
+
+if os.getenv("ENVIRONMENT_MODE") == "prod":
+    from fan_control import FanActuator
+    from led_pwm import LEDActuator
+    from temp_humi_sensor import TempHumiditySensor
+else:
+    from mock_controllers.mock_temp_humi import (MockTempHumiditySensor as TempHumiditySensor)
+    from mock_controllers.mock_led import MockLEDActuator as LEDActuator
+    from mock_controllers.mock_fan import MockFanActuator as FanActuator
 
 
 class DeviceController:
@@ -14,9 +28,8 @@ class DeviceController:
 
         :return List[ISensor]: List of initialized sensors.
         """
-
         return [
-            # Instantiate each sensor inside this list, separate items by comma.
+            TempHumiditySensor(address=0x38, bus=4, model="AHT20", type=AReading)
         ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -24,9 +37,9 @@ class DeviceController:
 
         :return list[IActuator]: List of initialized actuators.
         """
-
         return [
-            # Instantiate each actuator inside this list, separate items by comma.
+            FanActuator(gpio=16, type=ACommand.Type.FAN),
+            LEDActuator(18, ACommand.Type.LIGHT_PULSE, "2")
         ]
 
     def read_sensors(self) -> list[AReading]:
@@ -35,7 +48,8 @@ class DeviceController:
         :return list[AReading]: a list containing all readings collected from sensors.
         """
         readings: list[AReading] = []
-
+        for sensor in self._sensors:
+            readings.extend(sensor.read_sensor())
         return readings
 
     def control_actuators(self, commands: list[ACommand]) -> None:
@@ -43,12 +57,16 @@ class DeviceController:
 
         :param list[ACommand] commands: List of commands to be dispatched to corresponding actuators.
         """
-
+        for command in commands:
+            for actuator in self._actuators:
+                if actuator.validate_command(command.type):
+                    actuator.control_actuator(command.value)
+                    break
 
 if __name__ == "__main__":
-    """This script is intented to be used as a module, however, code below can be used for testing.
+    """This script is intended to be used as a module, however, code below can be used for testing.
     """
-
+  
     device_manager = DeviceController()
 
     TEST_SLEEP_TIME = 2
@@ -56,9 +74,8 @@ if __name__ == "__main__":
     while True:
         print(device_manager.read_sensors())
 
-        fake_command = ACommand(
-            ACommand.Type.FAN, "replace with a valid command value")
+        command = ACommand(ACommand.Type.FAN, "1")
 
-        device_manager.control_actuators([fake_command])
+        device_manager.control_actuators([command])
 
         sleep(TEST_SLEEP_TIME)
