@@ -6,7 +6,7 @@ class MockSensor(ISensor):
     _sensor_model: str
     reading_type: AReading.Type
 
-    #gpio replaces bus num
+    # gpio replaces bus num
     def __init__(self, gpio: int,  model: str, type: AReading.Type):
         self._sensor_model = model
         self.reading_type = type
@@ -24,7 +24,7 @@ class MockSensor(ISensor):
         return [
             AReading(self.reading_type, unit, 0)
         ]
-    
+
 
 def main():
     tempsensor = MockSensor(4, "AHT20", AReading.Type.TEMPERATURE)

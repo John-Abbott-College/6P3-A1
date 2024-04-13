@@ -2,6 +2,7 @@ from gpiozero import PWMLED
 from signal import pause
 from actuators import IActuator, ACommand
 
+
 class LEDActuator(IActuator):
     _current_state: str
     type: ACommand.Type
@@ -15,7 +16,7 @@ class LEDActuator(IActuator):
     def validate_command(self, command: ACommand) -> bool:
         return command.target_type == self.type
 
-    def control_actuator(self, value:str) -> bool:
+    def control_actuator(self, value: str) -> bool:
         previous_duration = self.duration
 
         try:
@@ -24,9 +25,9 @@ class LEDActuator(IActuator):
             print(f"Invalid argument {value}, must be a float")
 
         self.led.pulse(
-            fade_in_time = self.duration/2, 
-            fade_out_time = self.duration/2, 
-            n = 2, background=False)
+            fade_in_time=self.duration/2,
+            fade_out_time=self.duration/2,
+            n=2, background=False)
 
         return previous_duration != self.duration
 
@@ -41,7 +42,7 @@ def main():
 
 
 if __name__ == "__main__":
-    try: 
+    try:
         main()
     except KeyboardInterrupt:
         pass
