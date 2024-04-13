@@ -2,6 +2,7 @@ from gpiozero import OutputDevice
 from time import sleep
 from actuators import IActuator, ACommand
 
+
 class FanActuator(IActuator):
     __current_state: str
     type: ACommand.Type
@@ -36,7 +37,7 @@ def main():
 
 
 if __name__ == "__main__":
-    try: 
+    try:
         main()
     except KeyboardInterrupt:
         pass

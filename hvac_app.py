@@ -23,13 +23,17 @@ app.layout = html.Div([
     html.Div(children='HVAC Controller and Reader System'),
     html.Hr(),
     html.Button('Activate LED/Fan: Off', id='activate-actuators', n_clicks=0),
-    html.Button('Read Temperature/Humidity: Off', id='activate-sensors', n_clicks=0),
-    dcc.Graph(id='sensor-graph', figure=px.histogram(pd.read_csv('./measurements.csv'), x='time', y='value', histfunc='avg'))
+    html.Button('Read Temperature/Humidity: Off',
+                id='activate-sensors', n_clicks=0),
+    dcc.Graph(id='sensor-graph', figure=px.histogram(pd.read_csv(
+        './measurements.csv'), x='time', y='value', histfunc='avg'))
 ])
 
 # Add controls to build the interaction
+
+
 @callback(
-    Output('activate-actuators','children'),
+    Output('activate-actuators', 'children'),
     Input('activate-actuators', 'n_clicks')
 )
 def activate_actuators(n_clicks):
@@ -42,7 +46,7 @@ def activate_actuators(n_clicks):
 
 # Add controls to build the interaction
 @callback(
-    Output('activate-sensors','children'),
+    Output('activate-sensors', 'children'),
     Input('activate-sensors', 'n_clicks')
 )
 def activate_sensors(n_clicks):
@@ -52,8 +56,9 @@ def activate_sensors(n_clicks):
     sensors_active = False
     return 'Read Temperature/Humidity: Off'
 
+
 @callback(
-    Output('sensor-graph','figure'),
+    Output('sensor-graph', 'figure'),
     Input("countdown-interval", "n_intervals"),
     Input('activate-sensors', 'n_clicks'),
     Input('activate-actuators', 'n_clicks')
@@ -69,7 +74,8 @@ def sensor_actuator_countdown(n_intervals, n_clicks_sensors, n_clicks_actuators)
         device_manager.control_actuators(fake_command)
     return px.histogram(pd.read_csv('./measurements.csv'), x='time', y='value', histfunc='avg')
 
+
 # Run the app
 if __name__ == '__main__':
-    
+
     app.run(debug=True)

@@ -12,6 +12,7 @@ from mock_actuator import MockActuator
 from datetime import datetime
 import csv
 
+
 class DeviceController:
     def __init__(self) -> None:
         self._env = dotenv_values(".env")
@@ -27,12 +28,14 @@ class DeviceController:
         if self._env["PROD_MODE_ON"] == "ON":
             return [
                 # Instantiate each sensor inside this list, separate items by comma.
-                TempHumiditySensor(gpio=4, model="AHT20", type=AReading.Type.TEMPERATURE)
+                TempHumiditySensor(gpio=4, model="AHT20",
+                                   type=AReading.Type.TEMPERATURE)
             ]
         elif self._env["PROD_MODE_ON"] == "OFF":
             return [
                 # Instantiate each sensor inside this list, separate items by comma.
-                MockSensor(gpio=4, model="AHT20", type=AReading.Type.TEMPERATURE)
+                MockSensor(gpio=4, model="AHT20",
+                           type=AReading.Type.TEMPERATURE)
             ]
 
     def _initialize_actuators(self) -> list[IActuator]:
@@ -44,14 +47,18 @@ class DeviceController:
         if self._env["PROD_MODE_ON"] == "ON":
             return [
                 # Instantiate each actuator inside this list, separate items by comma.
-                FanActuator(gpio=16, type=ACommand.Type.FAN, initial_state="OFF"),
-                LEDActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE, initial_state="OFF")
+                FanActuator(gpio=16, type=ACommand.Type.FAN,
+                            initial_state="OFF"),
+                LEDActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE,
+                            initial_state="OFF")
             ]
         elif self._env["PROD_MODE_ON"] == "OFF":
             return [
                 # Instantiate each actuator inside this list, separate items by comma.
-                MockActuator(gpio=16, type=ACommand.Type.FAN, initial_state="OFF"),
-                MockActuator(gpio=12, type=ACommand.Type.LIGHT_PULSE, initial_state="OFF")
+                MockActuator(gpio=16, type=ACommand.Type.FAN,
+                             initial_state="OFF"),
+                MockActuator(
+                    gpio=12, type=ACommand.Type.LIGHT_PULSE, initial_state="OFF")
             ]
 
     def read_sensors(self) -> list[AReading]:
@@ -70,7 +77,8 @@ class DeviceController:
             with open("measurements.csv", "a") as csvfile:
                 csvwriter = csv.writer(csvfile, delimiter=",")
                 for reading in readings:
-                    csvwriter.writerow((timestamp, reading.value, reading.reading_unit, reading.reading_type))
+                    csvwriter.writerow(
+                        (timestamp, reading.value, reading.reading_unit, reading.reading_type))
 
         return readings
 
