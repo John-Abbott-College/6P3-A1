@@ -9,6 +9,8 @@ from led_pwm import LEDActuator
 from dotenv import dotenv_values
 from mock_sensor import MockSensor
 from mock_actuator import MockActuator
+from datetime import datetime
+import csv
 
 class DeviceController:
     def __init__(self) -> None:
@@ -64,6 +66,11 @@ class DeviceController:
 
         for reading in readings:
             print(reading.value, reading.reading_unit, reading.reading_type)
+            timestamp = datetime.now().time()
+            with open("measurements.csv", "a") as csvfile:
+                csvwriter = csv.writer(csvfile, delimiter=",")
+                for reading in readings:
+                    csvwriter.writerow((timestamp, reading.value, reading.reading_unit, reading.reading_type))
 
         return readings
 
