@@ -18,6 +18,7 @@ class LEDActuator(IActuator):
 
         try:
             self.duration = float(value)
+            print("Successfully controlled LED brightness!")
         except TypeError:
             print(f"Invalid argument {value}, must be a float")
 
@@ -27,19 +28,3 @@ class LEDActuator(IActuator):
             n = 2, background=False)
 
         return previous_duration != self.duration
-
-
-def main():
-    led = LEDActuator(gpio=12)
-    duration = 2
-    print(f"LED pulsing twice for {duration} seconds...")
-    led.control_actuator(duration)
-    print(f"Finished. Press CTRL-C to exit.")
-    pause()
-
-
-if __name__ == "__main__":
-    try: 
-        main()
-    except KeyboardInterrupt:
-        pass

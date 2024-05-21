@@ -1,28 +1,60 @@
+#!/usr/bin/env python3
 from fan_control import FanActuator
 from led_pwm import LEDActuator
 from temp_humi_sensor import TempHumiditySensor
+
+from actuators import IActuator, ACommand
+from sensors import ISensor, AReading
 from time import sleep
 
 
 class Device_Controller:
     def __init__(self) -> None:
-        self.led = LEDActuator(gpio=12)
-        self.fan = FanActuator(gpio=16)
-        self.sensor = TempHumiditySensor()
+        self._initialize_sensors()
+        self._initialize_actuators()
 
-    def control_actuators(self) -> None:
-        led_duration = "1" if self.led.duration == "2" else "2"
-        self.led.control_actuator(led_duration)
-        fan_state = "1" if self.fan.current_state == "0" else "0"
-        self.fan.control_actuator(fan_state)
+    def _initialize_sensors(self) -> None:
+        sensor = TempHumiditySensor(model="Temp and Humidity", type=AReading.Type.TEMPERATURE)
+        self.sensors = [sensor]
+
+    def _initialize_actuators(self) -> None:
+        led = LEDActuator(gpio=12, type=ACommand.Type.LIGHT_ON_OFF)
+        fan = FanActuator(gpio=16, type=ACommand.Type.FAN)
+        self._actuators = [led, fan]
+
+    def control_actuator(self, actuator: IActuator, command: ACommand) -> None:
+        success = actuator.control_actuator(command)
+
+        if not success:
+            print(f"Failed to control actuator {actuator} with command {command}")
+
+    def control_actuators(self, commands) -> None:
+        for actuator in self._actuators:
+            for command in commands:
+                if actuator.validate_command(command):
+                    self.control_actuator(actuator, command.value)
+        
 
     def read_sensors(self) -> None:
-        print(f"{self.sensor.read_sensor()}") 
+        readings: list[AReading] = []
+
+        for sensor in self.sensors:
+            fresh_readings = sensor.read_sensor()
+            readings += fresh_readings
+            print(f"Latest reading for {sensor}: {fresh_readings}")
 
     def loop(self):
+
+        commands = [
+            ACommand(ACommand.Type.LIGHT_ON_OFF, "1"),
+            ACommand(ACommand.Type.FAN, "1"),
+            ACommand(ACommand.Type.LIGHT_ON_OFF, "0"),
+            ACommand(ACommand.Type.FAN, "0")
+        ]
+
         while True:
-            self.control_actuators()
             self.read_sensors()
+            self.control_actuators(commands)
             sleep(2)
 
 
