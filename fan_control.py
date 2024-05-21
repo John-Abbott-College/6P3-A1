@@ -4,13 +4,14 @@ from actuators import IActuator, ACommand
 
 
 class FanActuator(IActuator):
-    def __init__(self, gpio: int, initial_state: str = "0") -> None:
+    def __init__(self, gpio: int, type:ACommand.Type, initial_state: str = "0") -> None:
         self.gpio = gpio
         self.current_state = initial_state
         self.fan = OutputDevice(pin=gpio)
+        self.type = type
 
     def validate_command(self, command: ACommand) -> bool:
-        return command.target_type == ACommand.Type.FAN
+        return command.target_type == self.type
 
     def control_actuator(self, value: str) -> bool:
         previous_state = self.current_state
