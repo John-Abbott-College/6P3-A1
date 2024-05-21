@@ -1,13 +1,24 @@
-from grove.grove_temperature_humidity_aht20 import GroveTemperatureHumidityAHT20
 from time import sleep
+from sensors import ISensor, AReading
 
 
-class TempHumiditySensor: 
-    def __init__(self, address:hex=0x38, bus:int=4) -> None:
-        self.sensor = GroveTemperatureHumidityAHT20(address = address, bus = bus)
+class TempHumiditySensor(ISensor): 
+    def __init__(self, model:str, type:AReading.Type) -> None:
+        self._sensor_model = model
+        self.reading_type = type
 
-    def read_sensor(self) -> list[float]: 
-        return list(self.sensor.read())
+        self.counter = 1.00
+        self.max_count = 120.00
+
+    #Placeholder data to return
+    def read_sensor(self) -> list[AReading]:
+        self.counter += 0.05 if self.counter < self.max_count else 1.00
+
+        return [
+            AReading(AReading.Type.TEMPERATURE, AReading.Unit.CELCIUS, 25.00 + self.counter),
+            AReading(AReading.Type.HUMIDITY, AReading.Unit.HUMIDITY, self.counter/10)
+        ]
+
     
 
 def main():
